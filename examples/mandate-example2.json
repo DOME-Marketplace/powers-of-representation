@@ -1,0 +1,46 @@
+{
+    "mandate": {
+        "id": "bb1482e1-0513-4c90-9c80-98a2e4d14984",
+        "mandator": {
+            "cn": "56565656V Jesus Ruiz",
+            "serialNumber": "56565656V",
+            "organizationIdentifier": "VATES-12345678",
+            "o": "GoodAir",
+            "c": "ES"
+        },
+        "mandatee": {
+            "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+            "title": "Mr.",
+            "first_name": "John",
+            "last_name": "Doe",
+            "gender": "M",
+            "email": "johndoe@goodair.com",
+            "mobile_phone": "+34787426623"
+        },
+        "power": [
+            {
+                "id": "uri to specific power being delegated",
+                "tmf:type": "Domain",
+                "tmf:domain": ["DOME"],
+                "tmf:action": ["Process"],
+                "tmf:function": "Onboarding",
+                "tmf:manageableAsset": {
+                    "id": "12k-47",
+                    "@type": "ManageableAsset",
+                    "@referredType": "ProductOffering"
+                },
+                "mandateeConstraints": [
+                    {
+                        "id": "identifier of the constraint",
+                        "name": "the name of the constraint",
+                        "type": "tmf:ConstraintType"
+                    }
+                ]
+            }
+        ],
+        "lifeSpan": {
+            "startDateTime": "2023-10-01",
+            "endDateTime": "2025-10-01"
+        }
+    }
+}

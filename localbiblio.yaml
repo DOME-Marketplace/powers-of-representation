@@ -1,0 +1,137 @@
+"ETSI-CERTOVERVIEW":
+    title: "ETSI EN 319 412-1 V1.4.2 (2020-07) - Electronic Signatures and Infrastructures (ESI); Certificate Profiles; Part 1: Overview and common data structures"
+    href: "https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.04.02_20/en_31941201v010402a.pdf"
+    date: "2020-07"
+    publisher: "ETSI"
+"ETSI-LEGALPERSON":
+    title: "ETSI EN 319 412-3 V1.2.1 (2020-07) - Electronic Signatures and Infrastructures (ESI); Certificate Profiles; Part 3: Certificate profile for certificates issued to legal persons"
+    href: "https://www.etsi.org/deliver/etsi_en/319400_319499/31941203/01.02.01_60/en_31941203v010201p.pdf"
+    date: "2020-07"
+    publisher: "ETSI"
+"JAdES":
+    title: "ETSI TS 119 182-1 V1.1.1 (2021-03) - Electronic Signatures and Infrastructures (ESI); JAdES digital signatures; Part 1: Building blocks and JAdES baseline signatures"
+    href: "https://www.etsi.org/deliver/etsi_ts/119100_119199/11918201/01.01.01_60/ts_11918201v010101p.pdf"
+    date: "2021-03"
+    publisher: "ETSI"
+"DEP-DSS":
+    title: "Algorithm for Validation of qualified and advanced signatures and seals"
+    href: "https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Qualified+electronic+signature+-+QES+validation+algorithm"
+    date: "2019-10"
+    publisher: "European Commission"
+"DID-PRIMER":
+    title: "DID Primer"
+    href: "https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2017/blob/master/topics-and-advance-readings/did-primer.md"
+    publisher: "Rebooting the Web of Trust 2017"
+"DID-ELSI":
+    title: "DID ETSI Legal person Semantic Identifier Method Specification (did:elsi)"
+    href: "https://alastria.github.io/did-method-elsi/"
+    date: "04 June 2023"
+"DID-DNS":
+    title: "The Decentralized Identifier (DID) in the DNS"
+    href: "https://tools.ietf.org/html/draft-mayrhofer-did-dns-01"
+    status: "Internet Draft"
+    publisher: "IETF"
+"DIF.PresentationExchange":
+    title: "Presentation Exchange 2.0.0"
+    href: "https://identity.foundation/presentation-exchange/spec/v2.0.0/"
+"OWASP-TRANSPORT":
+    title: "Transport Layer Protection Cheatsheet"
+    href: "https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet"
+"OpenID.Core":
+    title: "OpenID Connect Core 1.0 incorporating errata set 1"
+    href: "http://openid.net/specs/openid-connect-core-1_0.html"
+    date: "8 November 2014"
+"OpenID.VCI":
+    title: "OpenID for Verifiable Credential Issuance - draft 13"
+    date: "8 February 2024"
+    href: "https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html"
+"OpenID.SIOP2":
+    title: "Self-Issued OpenID Provider v2"
+    date: "28 January 2022"
+    href: "https://openid.bitbucket.io/connect/openid-connect-self-issued-v2-1_0.html"
+"OpenID.VP":
+    title: "OpenID for Verifiable Presentations"
+    date: "21 April 2023"
+    href: "https://openid.net/specs/openid-4-verifiable-presentations-1_0.html"
+"RFC6749":
+    title: "The OAuth 2.0 Authorization Framework"
+    href: "https://www.rfc-editor.org/rfc/rfc6749.html"
+"RFC8414":
+    title: "OAuth 2.0 Authorization Server Metadata"
+    href: "https://www.rfc-editor.org/rfc/rfc8414"
+"RFC7515":
+    title: "JSON Web Signature (JWS)"
+    href: "https://www.rfc-editor.org/rfc/rfc7515"
+"RFC8725":
+    title: "JSON Web Token Best Current Practices"
+    href: "https://www.rfc-editor.org/rfc/rfc8725"
+"RFC7519":
+    title: "JSON Web Token (JWT)"
+    href: "https://www.rfc-editor.org/rfc/rfc7519"
+"DID-ELSI":
+    title: "DID ETSI Legal person Semantic Identifier Method Specification (did:elsi)"
+    href: "https://alastria.github.io/did-method-elsi/"
+    date: "04 June 2023"
+"DID-ONBOARDING":
+    title: "Onboarding example with LEARCredential using did:elsi"
+    href: "https://alastria.github.io/did-method-elsi/onboarding.html"
+    date: "04 June 2023"
+"NIST-AUTH":
+    title: "NIST Special Publication 800-178: A Comparison of Attribute Based Access Control (ABAC) Standards for Data Service Applications"
+    href: "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-178.pdf"
+    date: "October 2016"
+"ENISA-Qualified Electronic Signatures":
+    title: "Security guidelines on the appropriate use of qualified electronic signatures"
+    href: "https://www.enisa.europa.eu/publications/security-guidelines-on-the-appropriate-use-of-qualified-electronic-signatures"
+    date: "December 2016"
+"ENISA-Qualified Electronic Seals":
+    title: "Security guidelines on the appropriate use of qualified electronic seals"
+    href: "https://www.enisa.europa.eu/publications/security-guidelines-on-the-appropriate-use-of-qualified-electronic-seals"
+    date: "June 2017"
+"eIDAS":
+    title: "Discover eIDAS"
+    href: "https://digital-strategy.ec.europa.eu/en/policies/discover-eidas"
+"eIDAS.Regulation":
+    title: "Regulation (EU) No 910/2014 of the European Parliament and of the Council of 23 July 2014 on electronic identification and trust services for electronic transactions in the internal market and repealing Directive 1999/93/EC"
+    href: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2014.257.01.0073.01.ENG"
+    date: "23 July 2014"
+"eIDAS2.Regulation":
+    title: "REPORT on the proposal for a regulation of the European Parliament and of the Council amending Regulation (EU) No 910/2014 as regards establishing a framework for a European Digital Identity"
+    href: "https://www.europarl.europa.eu/doceo/document/A-9-2023-0038_EN.html"
+    date: "March 2023"
+"EDIW.ARF":
+    title: "EUDI Wallet Architecture and Reference Framework 1.1.0"
+    href: "https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/blob/main/docs/arf.md"
+    date: "20 April 2023"
+"eIDAS-SAML_V1.2":
+    title: "eIDAS SAML Attribute Profile. Version 1.2"
+    href: "https://ec.europa.eu/digital-building-blocks/wikis/download/attachments/467109280/eIDAS%20SAML%20Attribute%20Profile%20v1.2%20Final.pdf"
+    date: "August 2019"
+"Cryptographic Hyperlinks":
+    title: "Cryptographic Hyperlinks"
+    href: "https://w3c-ccg.github.io/hashlink/"
+    date: "May 2021"
+"ODRL":
+    title: "ODRL Information Model 2.2"
+    href: "https://www.w3.org/TR/odrl-model/"
+    date: "February 2018"
+"EU_Trusted_Lists":
+    title: "EU Trusted Lists"
+    href: "https://digital-strategy.ec.europa.eu/en/policies/eu-trusted-lists"
+"Actor-DataSpaces":
+    title: "Extending Actor Models in Data Spaces"
+    href: "https://dl.acm.org/doi/pdf/10.1145/3543873.3587645"
+    date: "April 2023"
+
+"STORK2.MandateReport":
+    title: "STORK 2.0: D.3.3 – Mandate/Attribute Management Report"
+    href: "https://ec.europa.eu/digital-building-blocks/wikis/display/EIDCOMMUNITY/STORK+2.0+WP3+-+Legal+and+Trust+Analysis?preview=/84415420/84415378/STORK_2_0_D3_3_MandateAttribute_Management_Report_v_1_0.pdf"
+    date: "2012"
+"Apodera":
+    title: "Electronic Register of Powers"
+    href: "https://ec.europa.eu/digital-building-blocks/wikis/display/EIDCOMMUNITY/STORK+2.0+WP3+-+Legal+and+Trust+Analysis?preview=/84415420/84415378/STORK_2_0_D3_3_MandateAttribute_Management_Report_v_1_0.pdf"
+    date: "2012"
+"RPaM-Ontology":
+    title: "Representation Powers and Mandates (RPaM) Ontology"
+    href: "https://github.com/everis-rpam/RPaM-Ontology/wiki/Ontology-Development-Report"
+    date: "2020"

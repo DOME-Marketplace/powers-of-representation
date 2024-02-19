@@ -1,0 +1,227 @@
+<section>Obtaining the LEAR Credential
+
+    <section>Introduction
+
+        <section>eIDAS Trust Framework and digital signatures
+
+            At the top of the Trust Framework we have the [[[EU_Trusted_Lists]]]. Member States have the obligation to establish, maintain and publish trusted lists with each <x-ref "qualified trust service provider"> under their control and the services provided by them.
+
+            In order to allow access to the trusted lists of all Member States, the Commission makes available to the public the trusted lists as notified by Member States.
+
+            Certificates for signatures and for seals are provided by QTSPs under the eIDAS legal framework. There are some 240 QTSPs, providing different Trust Services.
+
+            We focus here only on two types of certificates provided by QTSPs to organisations and legal representatives of organisations:
+            <dl>
+                <dt>qualified certificate for electronic seal 
+                <dd>An electronic seal is data in electronic form, which is attached to or logically associated with other data in electronic form to ensure the latter’s origin and integrity, where <b>the creator of a seal is a legal person (unlike the electronic signature that is issued by a natural person)</b>. In this document we will informally refer to a legal person as an `organisation`, when we do not require the more precise terminology. 
+
+                    In this purpose, electronic seals might serve as evidence that an electronic document was issued by a legal person, ensuring certainty of the document’s origin and integrity. Nevertheless, across the European Union, when a transaction requires a qualified electronic seal from a legal person, <b>a qualified electronic signature from the authorised representative of the legal person is equally acceptable</b>.
+
+                <dt>qualified certificate for electronic signature
+                <dd>An electronic signature is data in electronic form which is attached to or logically associated with other data in electronic form and which is used by the signatory to sign, <b>where the signatory is a natural person</b>.
+
+                    Like its handwritten counterpart in the offline world, an electronic signature can be used, for instance, to electronically indicate that the signatory has written the document, agreed with the content of the document, or that the signatory was present as a witness.
+
+                    We are interested here in a qualified certificate for electronic signature issued to a natural person who is an authorised representative of the legal person, informally called a <b>certificate of representation</b>, because it is typically <b>used by the legal representative to sign documents on behalf of the organisation that the natural person represents</b>. 
+
+                    In case you want to seal a document as a legal person (e.g. as a business or organisation), you might be instead interested in an electronic seal.
+
+
+            The qualified certificate for electronic seal is typically installed in a server (using a hardware security module, or HSM) and used to automatically seal documents like eInvoices (typically in XML format), by automated backend processes.
+
+            The qualified certificate for electronic signature is used by the natural person who is an authorised representative of the legal person. It is used under the control of the natural person to sign documents typically in PDF format, like contracts, where the natural person acts on behalf of the organisation.
+
+            These concepts are described in the following diagram:
+
+            <x-img #"Trust Framework-Signatures1" @"LEARCredential/images/eIDAS Trust Framework-Signatures1.drawio.png">Signatures of PDF and XML
+
+            In DOME we use eIDAS certificates to sign/seal Verifiable Credentials, which are JSON documents. Verifiable Credentials represent several types of documents in structured format and be machine readable and machine verifiable. Advanced/qualified signatures provide the same legal validity as “traditional” PDF or XML documents.
+
+            This is represented in the following diagram, complementing the one above:
+
+            <x-img #"Trust Framework-Signatures2" @"LEARCredential/images/eIDAS Trust Framework-Signatures2.drawio.png">Signatures of JSON documents
+
+        <section>Creating the LEAR Credential
+
+            The LEAR Credential is a JSON document which requires an advanced or qualified signature or seal, using one of the certificates described above.
+
+            The credential can be sealed with a qualified certificate for seals in a similar way to how the organisation seals electronic invoices. However, we will focus here in the electronic signature performed by the natural person who is the legal representative of the organisation. The LEAR Credential is an employee credential issued to a small number of employees (maybe one), typically with the intervention of the HR department of the organisation and manual interaction of the legal representative.
+
+            In this case, the legal representative controls the qualified certificate for signatures and there are three possibilities for performing the signature:
+
+            <ol>
+                - The certificate is inside a Smart Card or other hardware devices like USB token, and the legal representative uses her PC or laptop equipped with the proper hardware mechanism to perform the actual signature `inside` the Smart Card or token. This is typically the setup for performing a `qualified signature`, which has greater legal presumptions of validity than other types of signature.
+
+                - The certificate is inside a keyring or certificate manager controlled by the operating system of the PC or laptop of the legal representative. Given that this is a software-only solution, the signature achieved has the legal status of an `advanced signature`, even if a qualified certificate is used. This signature has a lower level of legal certainty than the qualified signature, but it is enough for most business transactions.
+
+                - The certificate is managed in the cloud by a QTSP which provides remote signature services to its customers. Depending on the mechanisms and policies adopted by the QTSP when performing the signature, the result can be either an advanced or qualified signature.
+
+            For the moment, we will focus just on the first and second mechanisms of signature, which we will call `local signature` for obvious reasons.
+
+        <section>Signing the LEAR Credential
+
+            We start describing at a high level a typical local signature process when the legal representative signs a PDF document, because it is very familiar and will serve as the base to describe the signature of a Verifiable Credential to generate the LEAR Credential, highlighting the similarities and differences.
+
+            An imaginary (but typical) PDF signing process goes like this:
+
+            <ol>
+                - Somebody in another department of the company prepares a PDF document with the appropriate content. If it is a document related to an employee, it may be the HR department the one that prepares a Word document including some relevant employee information.
+
+                - The HR department sends to the employee the Word document so the employee can complete the document with some information that the HR department did not have. The employee returns the document to the HR department.
+
+                - The HR department exports the Word document to PDF format and sends the file electronically to the legal representative for signature. It may be sent by email, or in more sophisticated companies the document is managed by a document processing system, and it is made available for signature according to a specified workflow.
+
+                - The legal representative opens the PDF document in Acrobat Reader or any other application capable of signing PDFs.
+
+                - The legal representative instructs Acrobat Reader to digitally sign the document, and the program uses the corresponding operating system APIs to access the keyring or filesystem where the certificate is stored securely. Normally, this requires the legal representative to authenticate with the keyring.
+
+                - Acrobat Reader reads the certificate and its associated private key and performs the signature. Acrobat Reader then asks the legal representative to save the signed file.
+                
+                - The legal representative sends the signed PDF back to HR, so they can provide the document to the employee, together with whatever instructions are appropriate.
+
+            When creating the LEAR Credential, the flow is very similar:
+
+            <ol>
+                - Somebody in another department of the company prepares a JSON document with the format of a Verifiable Credential, with the appropriate content. In the case of a LEAR Credential, it may be the HR department the one that prepares the JSON document, including the relevant employee information. The HR department uses a special program called Credential Issuer to generate this version of the Credential and interact with the employee Wallet. The company can implement its own Issuer if they want, or they can simply use the Issuer provided by DOME As-A-Service.
+
+                - The HR department, using the Credential Issuer, sends the Credential to the employee Wallet. The employee can use any Wallet complying with the EDIW standards (OpenID4VCI), including the one provided by DOME. The Wallet, following the OpenID4VCI protocol, generates a pair of private/public keys and sends back the Credential and the public key to HR (again, following the OpenID4VCI protocol). The private key remains always in control of the user and nobody else knows about it.
+
+                - The Credential Issuer notifies automatically to the legal person that there is a document to be signed.
+
+                - The legal representative opens a local program installed in her computer (the equivalent to Acrobat Reader), and reviews the Credential to be signed. This local program is called Credential Signer and is provided by DOME for Windows, Mac and Linux, but the company can develop or buy their own. The Credential Signer uses the APIs of the Credential Issuer to retrieve the Credential to be signed (there may be more than one for different employees).
+
+                - The legal representative instructs the Credential Signer to digitally sign the document, and the program uses the corresponding operating system APIs to access the keyring or filesystem where the certificate is stored securely. Normally, this requires the legal representative to authenticate with the keyring.
+
+                - The Credential Signer reads the certificate and its associated private key and performs the signature. The resulting file is now a LEAR Credential.
+                
+                - After confirmation by the legal representative, the Credential Signer sends the LEAR Credential back to the Credential Issuer, which notifies HR and the employee that the Credential is ready. The employee uses her Wallet to retrieve the LEAR Credential from the Credential Issuer, again using the OpenID4VCI protocol.
+
+
+    <section>Infrastructure for obtaining the LEAR Credential
+
+        This section describes the components and infrastructure required by an organisation to create the LEAR Credential for one of its employees.
+
+        <section>LEAR Credential Issuer (part 1)
+
+            The `LEAR Credential Issuer` is the main application that manages the credential flow. We assume here that it is specialised in creating LEAR Credentials, though it could be used for other types of credentials. In this context, we will use the term `LEAR Credential Issuer` and `Credential Issuer` as interchangeable.
+
+            For the explanation, we are going to assume the issuance flow described above and a given set of actors. However, the flows can be adapted to other scenarios.
+
+            The main actors are:
+
+            <dl>
+                <dt>Appointed employee
+                <dd>This is the employee that will receive the LEAR Credential and that has been nominated or appointed by the organisation to perform some role in DOME on behalf of the organisation.
+
+                <dt>HR employee
+                <dd>The employee from the Human Resources department of the organisation that introduces the Appointed employee data in the Credential Issuer application.
+
+                <dt>Legal Representative
+                <dd>The natural person that is the official legal representative of the organisation.
+
+            <section>Obtaining an eIDAS certificate
+
+                Before starting the process, the legal representative should have an eIDAS certificate. This is the same certificate that can be used to sign documents in PDF form. The legal representative will be signing the LEAR Credential in a similar way to signing a PDF in her machine, except she will use a special program provided by DOME instead of Acrobat Reader. The technical requirements for signing LEAR Credentials are essentially the same as for signing a PDF. More details about this later.
+
+            <section>Introduction of data about the Appointed Employee
+
+                The HR employee uses an HTML form provided by the LEAR Credential Issuer application to input the required data about the employee. The application enables also to provide such data with a YAML file, to facilitate automation of the process.
+
+                The required data includes name, surname, contact data (phone and company email), and the roles that the employee is authorised to perform. For simplicity we assume here the role `onboarder`, but the HR employee can specify a list of roles relevant for DOME.
+
+                Once the data is completed, the HR employee confirms the operation and the LEAR Credential Issuer notifies the Appointed Employee using the company email provided.
+
+            <section>The Appointed employee receives the Credential Offer
+
+                The employee receives an email from the LEAR Credential Issuer with the proper instructions, including a unique `transaction code` that the employee requires to start the process for receiving the LEAR Credential.
+
+                The Appointed employee enters into the HTML portal provided by the LEAR Credential Issuer (the URL of the portal is well-known, but it is also described in the email).
+
+                The portal does not require the Appointed employee to be pre-registered in the application, because the unique `transaction code` received via email is used to access its Credential Offer.
+
+                Once the employee enters the `transaction code` in the portal, a QR code is displayed with the content of Credential Offer (compliant with the OpenID4VCI protocol).
+
+                The employee scans the QR code with her Wallet. She can use the Wallet provided by DOME, or any other which is compatible. This includes the possibility that the company provides employees with its own Wallet, which could even be a branded version of the DOME Wallet.
+
+            <section>The Wallet of the Appointed employee
+
+                The Appointed employee should have a Wallet compatible with the OpenID4VCI specifications, in particular capable of the subset of functionalities specified in the DOME profile.
+
+                The employee uses the Wallet to scan the QR code presented by the LEAR Credential Issuer containing the Credential Offer. After the employee reviews the request in her Wallet and providing explicit confirmation, the Wallet generates a private/public key pair according to the `did:key` specification, and sends this generated `did:key` to the LEAR Credential Issuer following the OpenID4VCI specifications.
+
+                The LEAR Credential Issuer replies to the Wallet with an OpenID4VCI Access Token to be used later when the credential has been signed by the legal representative.
+
+                The LEAR Credential Issuer notifies via email to the legal representative (her email is pre-registered in the application, as the contact person in the organisation capable of signing the LEAR Credentials).
+
+        <section>The LEAR Credential Signer
+
+            This is a simple program provided by DOME that should be installed locally in the PC of the legal representative and that performs the actual signing of the LEAR Credential (there are versions for Windows, Mac and Linux). Alternatively, any organisation can develop an equivalent program themselves if they wish, because it performs standard JAdES signatures and uses documented APIs of the LEAR Credential Issuer program.
+
+            The LEAR Credential Signer supports the following mechanisms to access the eIDAS certificate and sign the credential:
+
+            <ol>
+                - <b>PKCS#12</b> which defines a file format commonly used to store X.509 private key accompanying public key certificates, protected by symmetrical password.
+                - <b>MS CAPI</b> which is the Microsoft interface to communicate with SmartCards and Windows keyring.
+                - <b>Apple Keystore</b> allowing to access a Keychain store in a MacOS environment.
+                - <b>PKCS#11</b> is widely used to access smart cards and HSMs in different operating systems and environments.
+
+            The functionalities of the LEAR Credential Signer are described below.
+
+            <section>The legal representative starts the program
+
+                When the legal representative receives the email notification that a LEAR Credential needs her signature, she starts the LEAR Credential Signer program previously installed in her machine.
+
+                The program asks the legal representative for a unique transaction code received in the email. This transaction code is different from the one received by the Appointed employee, but it is related to the same transaction (the specific LEAR Credential being created).
+
+                The program invokes an API provided by the LEAR Credential Issuer to retrieve the LEAR CRedential that has to be signed. The API accepts the unique transaction code received from the legal representative.
+
+                The program displays the information for the retrieved LEAR Credential and requests confirmation to continue. 
+
+            <section>The legal representative signs the Credential
+
+                After confirmation, the LEAR Credential Signer uses the standard APIs (PKCS#12, MS CAPI, etc.) to perform the signature. During this process, the program requests from the legal representative the password or other authentication mechanism that the actual protocol requires to confirm the signature. For example, with PKCS#12 the legal representative has to provide the symmetrical password that protects the file containing the X.509 certificate.
+
+            <section>Sending the signed credential to the LEAR Credential Signer
+
+                After the signature is performed, the program asks for another confirmation from the legal representative to continue with the process.
+
+                Then the LEAR Credential Signer program invokes another API provided by the LEAR Credential Issuer server to send the signed credential.
+
+        <section>LEAR Credential Issuer (part 2)
+
+            When the Issuer receives the signed Credential from the LEAR Credential Signer, it makes the Credential available for retrieval by the Appointed employee. It also notifies via email to the involved parties (Appointed employee, legal representative and HR employee).
+
+            When the Appointed employee receives the notification, she uses her Wallet to restart the issuance process.
+
+            The Wallet uses the Access Token received in the first phase of the process to request the Credential using the OpenID4VCI protocol. After the protocol is executed, the Wallet has the LEAR Credential signed by the legal representative, ready to be used for authentication into DOME.
+
+    <section>Deployment scenarios
+
+        <section>Deployment of the LEAR Credential Issuer
+
+            The LEAR Credential Issuer is a web application consisting of a server part, HTML interface, the APIs implementing the OpenIDVCI protocol, and the APIs required by the LEAR Credential Signer program.
+
+            The LEAR Credential Issuer does not require integration with the rest of the DOME infrastructure, so it supports different deployment scenarios.
+
+            <section>By DOME as a service
+
+                Regardless of the other scenarios, DOME provides an instance of the LEAR Credential Issuer as a service, so organisations (especially SMEs) do not have to worry about deployment.
+
+                The application is standalone and does not require interaction with any other system except a compatible the Wallet and the LEAR Credential Signer.
+
+            <section>By an organisation willing to generate LEAR Credentials to its employees
+
+                The LEAR Credential Issuer can be deployed by any organisation wishing to control the full system. It can be deployed either on-premises or in any cloud environment that the organisation wants to use. The only requirements are that the HTML interface and APIs should be available to the involved actors in the company. They can even not be available through Internet, if the company so wishes.
+
+                The application is provided as a set of Docker containers that can be easily deployed in many environments.
+
+            <section>By an entity willing to provide the service to third-parties
+
+                An entity willing to provide the LEAR Credential issuance service to third-parties for whatever reason, can do so by deploying the LEAR Credential Issuer on their own system.
+
+        <section>Deployment of the LEAR Credential Signer
+
+            This is a simple program that is installed in the PC of the legal representative. It is intended for self-installation without requiring technical knowledge, though it is expected to be installed by the IT personnel taking care of the personal computer infrastructure of the employees in the organisation. The program can be installed using the typical automated installation processes in big organisations.
+
+            The only configuration required is the URL of the LEAR Credential Issuer that the organisation wants to use for Credential issuance. It may be the URL of the instance operated by DOME, or any other instance that the organisation wants.
+

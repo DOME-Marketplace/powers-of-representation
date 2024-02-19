@@ -1,0 +1,375 @@
+// Learn more about what's going on here:
+// @link https://moderncss.dev/generating-font-size-css-rules-and-creating-a-fluid-type-scale/
+
+// Select a ratio to preview
+// Default is "perfectFourth"
+$type-ratios: (
+    "minorSecond": 1.067,
+    "majorSecond": 1.125,
+    "minorThird": 1.2,
+    "majorThird": 1.25,
+    "perfectFourth": 1.333,
+    "augmentedFourth": 1.414,
+    "perfectFifth": 1.5,
+    "goldenRatio": 1.618
+);
+
+@function type-ratio($key) {
+    @return map-get($type-ratios, $key);
+}
+
+// Recommended
+$type-base-size: 1rem;
+
+// Select by key of map, or use a custom value
+$type-size-ratio: type-ratio("perfectFourth");
+
+// List in descending order to prevent extra sort function
+// Limited to high-touch heading styles
+$type-levels: 4, 3, 2, 1;
+
+// Create map with h[x] as key
+// and computed font-size as value
+$type-styles: (
+);
+$level-size: $type-base-size;
+
+@each $level in $type-levels {
+    $level-size: $level-size * $type-size-ratio;
+    $type-styles: map-merge($type-styles, (#{"h"}$level: $level-size));
+
+    // Output heading styles
+    // Assign to element and create utility class
+    h#{$level},
+    .h#{$level} {
+        // Fallback for browsers that don't support min / max
+        font-size: $level-size;
+
+        // Recommendation courtesy of this brilliant work:
+        // @link https://kittygiraudel.com/2020/05/18/using-calc-to-figure-out-optimal-line-height/
+        line-height: calc(2px + 2ex + 2px);
+
+        // Set with `em` to be relative to current `font-size`
+        margin-bottom: 0.65em;
+
+        // Limit in place based on testing -> smaller ratios are
+        // prematurely or unnecessarily reduced
+        @if ($type-size-ratio > 1.2) {
+            // Fluid type styles
+
+            // Remove unit for calculations
+            $level-unitless: calc($level-size / 1rem);
+
+            // Set minimum size to a percentage less than $level-size
+            // Reduction is greater for large font sizes (> 4rem) to help
+            // prevent overflow due to font-size on mobile devices
+            $fluid-reduction: if($level-size > 4, 0.5, 0.33);
+            $fluid-min: $level-unitless - ($fluid-reduction * $level-unitless);
+
+            // Prevent dropping lower than 1rem (body font-size)
+            $fluid-min: if($fluid-min > $type-base-size, $fluid-min, 1);
+
+            // Adjust max modifier slightly per level to prevent "same" size
+            // or lower levels appaering larger than higher levels
+            // 4vw was selected by testing from $type-ratios map, YMMV 🙃
+            $fluid-scaler: ($level-unitless - $fluid-min)+4vw;
+
+            font-size: clamp(#{$fluid-min}rem,
+                #{$fluid-scaler} + 1rem,
+                #{$level-size});
+        }
+    }
+}
+
+@function type-style($key) {
+    @return map-get($type-styles, $key);
+}
+
+
+p,
+li,
+h1,
+h2,
+h3,
+h4 {
+    // Help prevent overflow of long words/names/URLs
+    word-break: break-word;
+
+    // Optional, not supported for all languages:
+    -webkit-hyphens: auto;
+    hyphens: auto;
+
+    // Clear top margin
+    margin-top: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    // Ensure base applied as default for all other elements
+    font-size: $type-base-size;
+    font-family: sans-serif;
+    line-height: 1.5;
+}
+
+
+/* The color system, using variables */
+:root {
+    --text-color-primary: #20295b !important;
+    --text-color-medium: #3f51b5 !important;
+
+    --fore-color-primary: white !important;
+    --bg-color-primary: #20295b !important;
+
+    --fore-color-medium: white !important;
+    --bg-color-medium: #3f51b5 !important;
+
+    --fore-color-light: black !important;
+    --bg-color-light: #f3f4fb !important;
+
+    --fore-color-secondary: #04FF00 !important;
+    --bg-color-secondary: #102a3a !important;
+
+    --border-color-primary: #20295b !important;
+    --border-color-medium: #3f51b5 !important;
+}
+
+.color-primary,
+.hover-color-primary:hover {
+    color: var(--fore-color-primary);
+    background-color: var(--bg-color-primary)
+}
+
+.color-medium,
+.hover-color-medium:hover {
+    color: var(--fore-color-medium);
+    background-color: var(--bg-color-medium)
+}
+
+.color-light,
+.hover-color-light:hover {
+    color: var(--fore-color-light);
+    background-color: var(--bg-color-light)
+}
+
+.text-color-primary {
+    color: var(--text-color-primary)
+}
+
+.text-color-medium {
+    color: var(--text-color-medium)
+}
+
+.border-color-primary {
+    border-color: var(--border-color-primary)
+}
+
+.border-color-medium {
+    border-color: var(--border-color-medium)
+}
+
+.color-secondary,
+.hover-color-secondary:hover {
+    color: var(--fore-color-secondary);
+    background-color: var(--bg-color-secondary)
+}
+
+.color-error {
+    color: white;
+    background-color: red;
+}
+
+.color-warning {
+    color: black;
+    background-color: yellow;
+}
+
+.color-success {
+    color: black;
+    background-color: #04FF00;
+}
+
+.container {
+    padding: 0em 16px
+}
+
+article {
+    max-inline-size: 90ch;
+}
+
+
+btn-primary {
+    color: var(--fore-color-primary) !important;
+    background-color: var(--bg-color-primary) !important;
+    border-radius: 8px;
+    border: none;
+    display: inline-block;
+    padding: 8px 16px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap
+}
+
+btn-primary:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+}
+
+btn-primary {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.3
+}
+
+btn-primary.w3-disabled:hover,
+btn-primary:disabled:hover {
+    box-shadow: none
+}
+
+
+a[href] {
+    color: var(--text-color-medium);
+}
+
+.xref {
+    font-weight: 550;
+    text-decoration: none;
+}
+
+.selfref {
+    text-decoration: none;
+}
+
+code {
+    color: red;
+    font-family: monospace;
+    font-weight: normal;
+}
+
+blockquote {
+    max-inline-size: 70ch;
+    line-height: 2;
+    background: #f9f9f9;
+    border-left: 5px solid #ccc;
+    margin: 1.5em 1.5rem;
+    padding: 0.5em 10px;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.1em;
+    vertical-align: -0.4em;
+}
+
+blockquote p {
+    display: inline;
+    text-indent: 1rem;
+}
+
+hgroup>h1,
+hgroup>h2,
+hgroup>h3,
+hgroup>h4,
+hgroup>h5,
+hgroup>h6 {
+    margin-bottom: 0px;
+}
+
+hgroup>p {
+    margin-top: 0px;
+    font-size: 1.3rem;
+    color: dimgrey;
+}
+
+dl>dt {
+    font-weight: bolder;
+}
+
+dl dd,
+dl p {
+    margin-top: 0px;
+    margin-bottom: 1rem;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    display: table
+}
+
+table {
+    border: 1px solid #ccc
+}
+
+table tr {
+    border-bottom: 1px solid #ddd
+}
+
+table tr:nth-child(odd) {
+    background-color: #fff
+}
+
+table tr:nth-child(even) {
+    background-color: #f1f1f1
+}
+
+table td,
+table th {
+    padding: 8px 8px;
+    display: table-cell;
+    text-align: left;
+    vertical-align: top
+}
+
+table th:first-child,
+table td:first-child {
+    padding-left: 16px
+}
+
+table>thead th {
+    color: var(--fore-color-primary) !important;
+    background-color: var(--bg-color-primary) !important;
+}
+
+table {
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 4px 20px 0 rgba(0, 0, 0, 0.19)
+}
+
+@media (min-width:601px) {
+    table {
+        margin: auto;
+        width: 90%
+    }
+}
+
+// For the first-level unordered lists
+article>ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+article>ul>li>:first-child {
+    text-indent: -1rem;
+    margin-left: 1rem;
+}
+article>ul>li>:not(first-child) {
+    text-indent: 0;
+    margin-left: 1rem;
+}
