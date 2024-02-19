@@ -16,7 +16,7 @@ copyright: >
 
 latestVersion: "https://DOME-Marketplace.github.io/powers-of-representation/index.html"
 edDraftURI: "https://DOME-Marketplace.github.io/powers-of-representation/index.html"
-github: "https://github.com/DOME-Marketplace/powers-of-representation/blob/main/index.html"
+github: "https://github.com/DOME-Marketplace/powers-of-representation"
 og_description: >
     Authentication and authorization of entities acting on behalf of legal persons with Verifiable Credentials under eIDAS framework
 og_site_name: Authn with Verifiable Credentials
