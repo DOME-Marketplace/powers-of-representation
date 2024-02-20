@@ -24,8 +24,8 @@
     publisher: "Rebooting the Web of Trust 2017"
 "DID-ELSI":
     title: "DID ETSI Legal person Semantic Identifier Method Specification (did:elsi)"
-    href: "https://alastria.github.io/did-method-elsi/"
-    date: "04 June 2023"
+    href: "https://dome-marketplace.github.io/did-method-elsi/"
+    date: "February 2024"
 "DID-DNS":
     title: "The Decentralized Identifier (DID) in the DNS"
     href: "https://tools.ietf.org/html/draft-mayrhofer-did-dns-01"
@@ -68,14 +68,6 @@
 "RFC7519":
     title: "JSON Web Token (JWT)"
     href: "https://www.rfc-editor.org/rfc/rfc7519"
-"DID-ELSI":
-    title: "DID ETSI Legal person Semantic Identifier Method Specification (did:elsi)"
-    href: "https://alastria.github.io/did-method-elsi/"
-    date: "04 June 2023"
-"DID-ONBOARDING":
-    title: "Onboarding example with LEARCredential using did:elsi"
-    href: "https://alastria.github.io/did-method-elsi/onboarding.html"
-    date: "04 June 2023"
 "NIST-AUTH":
     title: "NIST Special Publication 800-178: A Comparison of Attribute Based Access Control (ABAC) Standards for Data Service Applications"
     href: "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-178.pdf"
