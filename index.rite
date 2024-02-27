@@ -2829,10 +2829,25 @@ localBiblioFile: "localbiblio.yaml"
             A Privilege is a detailed information concerning an individual access entitlement.
 
             <ul>
+                -(type): The type of power.
                 -(action): Level of access granted as part of the permission.
                 -(function): Specific function that can be managed over a given asset.
                 -(id): Identifier of the privilege.
                 -(manageableAsset): An entity reference (EntityRef). Entity reference schema to be use for all entityRef class. 
+
+            `tmf:type` can have these values:
+            <x-dl>
+                <x-dt>Domain (case sensitive)
+                    The mandatee has access to the services (subject to the restrictions defined by `action` and `function`) provided by one or more organisations where the services have been classified as belonging to that domain. The classification of services is arbitrary and defined by the service providers. A typical scenario is when some service providers agree on a classification of the services that they provide in the context of an ecosystem (like DOME), and the possible domains are made public, including the mapping to a given set of services in each provider.
+                    
+                    The name of the domain must be unique via namespace to avoid potential clashes in different ecosystems.
+                    
+                    The domain name used in DOME is "DOME-Marketplace".
+
+                <x-dt>Organization
+                    The mandatee has access only to the services provided by one or more organizations, listed specifically in the power.
+                    
+            `function` can have this values:
 
 
 <section .appendix #participants>Example scenario: Participants in the ecosystem

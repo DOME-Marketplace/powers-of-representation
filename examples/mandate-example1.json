@@ -36,9 +36,15 @@
             "power": [
                 {
                     "id": "53493323798",
-                    "tmf:type": "Domain",
-                    "tmf:domain": [
-                        "DOME"
+                    "tmf:type": "Organization",
+                    "tmf:organization": [
+                        {
+                            "id": "did:elsi:VATES-12345678",
+                            "name": "DOME-Marketplace.eu",
+                            "function": [
+                                "Sales", "Operation", "Reporting"
+                            ],
+                        },
                     ],
                     "tmf:function": "Onboarding",
                     "tmf:action": [
