@@ -1646,7 +1646,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
             </p>
             <p>If the Access Token is valid for requesting issuance of multiple Credentials, it is at the client's discretion to decide the order in which to request issuance of multiple Credentials requested in the Authorization Request.
             </p>
-            <section id='Binding the Issued Credential to the identifier of the End-User possessing that Credential'><h2>Binding the Issued Credential to the identifier of the End-User possessing that Credential</h2>
+            <section id='binding-id-holder'><h2>Binding the Issued Credential to the identifier of the End-User possessing that Credential</h2>
 
                 <p>The Issued Credential MUST be cryptographically bound to the identifier of the End-User who possesses the Credential. Cryptographic binding allows the Verifier to verify during the presentation of a Credential that the End-User presenting a Credential is the same End-User to whom that Credential was issued.
                 </p>
@@ -2912,9 +2912,9 @@ access_token=[the access token]
 </section>
 <section id='The LEAR Credential as Powers of Representation'><h2>The LEAR Credential as Powers of Representation</h2>
 
-    <p>The LEAR Credential is an eMandate, and we base our design in the [[RPaM-Ontology]], which is project project started in 2018 by the Directorate-General for Informatics (DG-DIGIT) of the European Commission, funded by the ISA Programme, to organise and support the development of an ontology about the Representation of Powers and Mandates, from now on the RPaM Ontology.
+    <p>The LEAR Credential is an eMandate, and we base our design in the [[RPaM-Ontology]], which is a project started in 2018 by the Directorate-General for Informatics (DG-DIGIT) of the European Commission, funded by the ISA Programme, to organise and support the development of an ontology about the Representation of Powers and Mandates, from now on the <b>RPaM Ontology</b>.
     </p>
-    <p>Our design is based on the results of that project, with simplifications and specialisations to adapt it the the concrete environment where we intend to use the LEAR Credential. To facilitate the job of the reader, we copy literal sentences from the RPaM Ontology project, and adapt the texts to our requirements. However, the reader is encouraged to access the original documents for more details and understand the original approach, including the <a href="https://everis-rpam.github.io/Glossary.html">RPaM Ontology Glossary</a>.
+    <p>Our design is based on the results of that project, with simplifications and specialisations to adapt it to the concrete environment where we intend to use the LEAR Credential. To facilitate the job of the reader of this document, we copy literal sentences from the RPaM Ontology project, and adapt the texts to our requirements. However, the reader is encouraged to access the original documents for more details and understand the original approach, including the <a href="https://everis-rpam.github.io/Glossary.html">RPaM Ontology Glossary</a>.
     </p>
     <section id='Conceptual Model'><h2>Conceptual Model</h2>
 
@@ -2922,91 +2922,97 @@ access_token=[the access token]
 
             <p>According to the RPaM Glossary, a "<i>mandate is a record that describes the terms under which a mandator grants a representation power to a mandatee</i>".
             </p>
-            <p>The following diagram defines the class Mandate and its relations with the other classes of the data model.
+            <p>The following diagram defines the class Mandate and its relations with the other classes of the data model, as it appears in the original RPaM Ontology project. We will describe later the concrete usage in DOME.
             </p>
             <figure><img src='images/rpam/RPaM-Mandate.png' alt='Mandate ontology. Source: [[RPaM-Ontology]]'>
             <figcaption>Mandate ontology. Source: [[RPaM-Ontology]]</figcaption></figure>
 
             <ol>
-                <li>The Mandate is a type of Evidence.
+                <li>The <code>Mandate</code> is a type of <code>Evidence</code>.
                 </li>
-                <li>A Mandate has only one Mandator.
+                <li>A <code>Mandate</code> has only one <code>Mandator</code>.
                 </li>
-                <li>The Mandator is a specialisation of an (RPaM) Agent. This Agent is an extension of foaf:Agent, and in RPaM, it can be either a natural person, a legal person or a system (i.e. all three descendant of Agent are disjoint amongst themselves; see also the diagram Agent below).
+                <li>The <code>Mandator</code> is a specialisation of an (RPaM) <code>Agent</code>. This <code>Agent</code> is an extension of <code>foaf:Agent</code>, and in RPaM, it can be either a natural person, a legal person or a system (i.e. all three descendant of <code>Agent</code> are disjoint amongst themselves; see also the diagram <code>Agent</code> below).
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>For the LEAR Credential we focus on the case where the Mandator is a legal representative of the company, according to the official records associated to the incorporation of the organisation (e.g., the business registry of the country of incorporation).
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>For the LEAR Credential we focus on the case where the <code>Mandator</code> is an employee of a company, either a legal representative of the company or an employee who is a Mandatee in another Mandate where the Mandator is a legal representative of the company, according to the official records associated to the incorporation of the organisation (e.g., the business registry of the country of incorporation).
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>The Mandator draws the Power from one (or more) sources of power, e.g. 1) a concrete Legislation; 2) a piece of evidence (as another Mandate, in which case the mandator was a mandatee in that other mandate) and/or 3) a Natural Person with a specific profession that invest him/her with the authority to order to a mandator with a specific role the creation of a mandate, e.g. a judge authorising a civil servant (a Mandator that is a Natural Person with the appropriate role) to create a mandate for a relative to represent an incapacitated person).
+                <li>The <code>Mandator</code> draws the Power from one (or more) sources of power, e.g. 1) a concrete Legislation; 2) a piece of evidence (as another Mandate, in which case the mandator was a mandatee in that other mandate) and/or 3) a Natural Person with a specific profession that invest him/her with the authority to order to a mandator with a specific role the creation of a mandate, e.g. a judge authorising a civil servant (a <code>Mandator</code> that is a Natural Person with the appropriate role) to create a mandate for a relative to represent an incapacitated person).
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>For the LEAR Credential, the Mandator is a legal representative of the company and the source of power is the business registry of the country of incorporation (or whatever organism maintains the official records for companies in the given country).
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>For the LEAR Credential, the <code>Mandator</code> is an employee of the company and the source of power is either:
                         </p>
+                        <ol>
+                            <li>the business registry of the country of incorporation (or whatever organism maintains the official records for companies in the given country), when the employee is a legal representative of the company.
+                            </li>
+                            <li>another Mandate, in which case the mandator was a mandatee in that other mandate
+                            </li>
+                        </ol>
                     </aside></td></tr></table>
                     </div>
                 </li>
                 <li>In the case where the mandator is "the owner" of the power (i.e. the mandator and the represented person are the same) there is no need of specifying which is the source of the power. From this convention derives the following business rule: "when a mandate does not specify the source of the power, the represented person is the mandator".
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>As described above, we do not handle this case. The Mandator is the legal representative of the company, and the represented person is the company itself.
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>As described above, we do not handle this case. The <code>Mandator</code> is an employee of a company and the represented person is the company itself. This is true no matter the chain of delegations (from the legal representative to an employee and from that employee to another employee).
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>It is for the mandator to grant powers to one or more mandatees (see the definition of Power in the glossary). Thus the power becomes the core entity that links mandator and mandatees in one mandate.
+                <li>It is for the mandator to grant powers to one or more mandatees (see the definition of Power in the <a href="https://everis-rpam.github.io/Glossary.html">RPaM Ontology Glossary</a>). Thus the power becomes the core entity that links mandator and mandatees in one mandate.
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>For the LEAR Credential, the Mandator (the legal representative of the company) grants a subset of powers from the Mandator to the mandatee (an employee of the company). The legal representative has so-called <code>General</code> powers, where the representative can act on behalf of the organisation in any action and for any third-party organisation.
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>For the LEAR Credential, the <code>Mandator</code> (the legal representative of the company or another employee) grants a subset of powers from the <code>Mandator</code> to the mandatee (an employee of the company). The legal representative has so-called <code>General</code> powers, where the representative can act on behalf of the organisation in any action and for any third-party organisation.
                         </p>
-                        <p>The LEAR Credential allows the Mandator to grant a subset of those powers to an employee, to act on behalf of the organisation only for some actions and for one specific organisation or domain (e.g., to onboard in DOME).
+                        <p>The LEAR Credential allows the <code>Mandator</code> to grant a subset of those powers to an employee, to act on behalf of the organisation only for some actions and for one specific organisation or domain (e.g., to onboard in DOME or to publish services in the DOME Marketplace).
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>The class Power is a wrapper for the different types of powers that are defined in an "EU Power Taxonomy". A proposal for this taxonomy has been developed also in the context of the RPaM ontology project. The taxonomy is in fact a compound of three "concept-schemes" around three classes of concepts: action, event and the object of a combined action plus event. See the section "Controlled vocabularies" for more details;
+                <li>The class <code>Power</code> is a wrapper for the different types of powers that are defined in an "EU Power Taxonomy". A proposal for this taxonomy has been developed also in the context of the RPaM ontology project. The taxonomy is in fact a compound of three "concept-schemes" around three classes of concepts: action, event and the object of a combined action plus event. See the section "Controlled vocabularies" for more details;
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>Here we deviate from the results of the RPaM project: the RPaM project focuses on the powers applicable to interactions with all the Public Administrations in the EU (which is an incredibly complex task, for many reasons).
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>Here we deviate from the results of the RPaM project: the RPaM project focuses on the powers applicable to interactions with all the Public Administrations in the EU (which is an incredibly complex task).
                         </p>
-                        <p>Our objective is more modest and concrete for two reasons. First, our Power Taxonomy is targeted at the interactions with the DOME Federated Marketplace. This means that the actions are well defined, homogeneous and standardised, essentially the subset of the TMForum APIs used in the implementation of the DOME Marketplace. Additionally, we do not tackle natural persons as citizens, but the Mandator is a legal representative and the Mandatee is an employee of the company. This makes the objective easily achievable, where we are basically replacing the current mecanisms for Mandates (e.g., paper or PDF) with a more efficient, machine-processable representation in the form of a Verifiable Credential.
+                        <p>Our objective is more modest and concrete for two reasons. First, our Power Taxonomy is targeted at the interactions with the DOME Federated Marketplace. This means that the actions are well defined, homogeneous and standardised, essentially the subset of the TMForum APIs used in the implementation of the DOME Marketplace. Additionally, we do not tackle natural persons as citizens, but the <code>Mandator</code> is a legal representative and the Mandatee is an employee of the company. This makes the objective easily achievable, where we are basically replacing the current mechanisms for Mandates (e.g., paper or PDF) with a more efficient, machine-processable representation in the form of a Verifiable Credential.
                         </p>
-                        <p>Our Power Taxonomy could be generalised to other actions involving private sector companies, but it is out of scope of the current document.
+                        <p>Our Power Taxonomy could be generalised to other actions involving private sector companies, but it is out of scope of this version of the document.
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>The Powers can be constrained. Thus the use of a Power can be limited through specific properties for both the Mandator and the Mandatee. These properties are “mandatorConstraint” and “mandateeConstraint”.
+                <li>The Powers can be constrained. Thus the use of a <code>Power</code> can be limited through specific properties for both the <code>Mandator</code> and the Mandatee. These properties are “mandatorConstraint” and “mandateeConstraint”.
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>This is an essential property of the LEAR Credential: it is intended for granting only constrained powers to an employee, facilitating a reduced set of interactions with third parties (e.g., the DOME ecosystem).
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>In this version of the document we do not use these properties. The use of the mechanisms described below are enough for the moment for granting constrained powers to an employee, facilitating a reduced set of interactions with third parties (e.g., the DOME ecosystem).
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>Power Use Constraints (PUC) are represented through "Criterion Properties", which is a class defined in the Core Criterion and Evidence Vocabulary (CCEV) namespace. As a "core" vocabulary this is a very generic vocabulary that allows to define any types of constraints. For instance: period of validity of the Power, financial thresholds, whether the Power is of single-use or multiple-use, etc. These constraints are defined in a code list and are accessible via the property type of the Criterion Property class.
+                <li><code>Power Use Constraints</code> (PUC) are represented through "Criterion Properties", which is a class defined in the <a href="https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/solution/e-government-core-vocabularies/core-criterion-and-core-evidence-vocabulary">Core Criterion and Evidence Vocabulary (CCEV)</a> namespace. As a "core" vocabulary this is a very generic vocabulary that allows to define any types of constraints. For instance: period of validity of the Power, financial thresholds, whether the Power is of single-use or multiple-use, etc. These constraints are defined in a code list and are accessible via the property type of the Criterion Property class.
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>In the implementation of the LEAR Credential we use a reduced subset of the CCEV properties, which are more than enough for our needs. However, there is no limit on which ones can be used for other uses if there is the need.
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>In the current implementation of the LEAR Credential we use a reduced subset of the CCEV properties, which are more than enough for our needs. This may be extended in the future if the need arises.
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
                 <li>In RPaM we reuse the UBL approach for the definition of periods of time. In UBL a Period is a class with a start date and either and end date or a quantity of days, months, years, etc. that indicate the duration of the period. In RPaM we use this ubl:Period class for two different purposes: 1) to specify the life-cycle of a mandate (property lifeSpan), in which case there is the need of specifying always two dates: the start date corresponds to the date when the mandate was created (i.e. registered), and the end date correspond to the date when the mandate was struck-off the registry (i.e. terminated for whatever reason).
                 </li>
-                <li>The mandatee is the person granted with the power to represent (and act as) another person (i.e. to act on behalf of the represented Person).
+                <li>The <code>Mandatee</code> is the person granted with the power to represent (and act as) another person (i.e. to act on behalf of the represented Person).
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
-                        <p>For the LEAR Credential, the Mandatee is the employee who is nominated by the legal representative to perform concrete actions on behalf of the company.
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
+                        <p>For the LEAR Credential, the Mandatee is the employee who is nominated by the legal representative or by another employee with another LEAR Credential to perform concrete actions on behalf of the company.
                         </p>
                     </aside></td></tr></table>
                     </div>
                 </li>
                 <li>Beware that in certain situations for the "acting on behalf of" more than one mandatee simultaneously may be necessary. This is modelled in RPaM through the property "coRepresentative" (a.k.a. "joint representation"): the cardinality 0..n allows to specify as many co-representatives as necessary and therefore can also be profiled to a very specific number of mandatees when/where necessary (i.e. depending of the business case).
                     <div>
-                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
+                    <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'><p class='xnotep'>NOTE: DOME</p>
                         <p>We do not require (yet) this functionality.
                         </p>
                     </aside></td></tr></table>
@@ -3016,17 +3022,17 @@ access_token=[the access token]
         </section>
         <section id='Agent'><h2>Agent</h2>
 
-            <p>The RPaM Agent reuses other known ontologies such as Friend-of-a-Friend (foaf), the W3C <code>org:Organization</code>, the OASIS UBL specification and the ISO 15000-5 Core Component Type Specification (CCTS). In some cases small extesions were added. That is particulary the case of the CCTS Identifier where the attribute "Assurance Level" was added as a need of alignment to the eIDAS Regulation.
+            <p>The RPaM <code>Agent</code> reuses other known ontologies such as Friend-of-a-Friend (foaf), the W3C <code>org:Organization</code>, the OASIS UBL specification and the ISO 15000-5 Core Component Type Specification (CCTS). In some cases small extesions were added. That is particulary the case of the CCTS Identifier where the attribute "Assurance Level" was added as a need of alignment to the eIDAS Regulation.
             </p>
-            <p>The following diagram represents the entities and relations for the definition of Agent in the context of RPaM:
+            <p>The following diagram represents the entities and relations for the definition of <code>Agent</code> in the context of RPaM:
             </p>
-            <figure><img src='images/rpam/RPaM-Agent.png' alt='Agent ontology. Source: [[RPaM-Ontology]]'>
+            <figure id='agent-ontology'><img src='images/rpam/RPaM-Agent.png' alt='Agent ontology. Source: [[RPaM-Ontology]]'>
             <figcaption>Agent ontology. Source: [[RPaM-Ontology]]</figcaption></figure>
 
             <ol>
-                <li>The definition of Agent, in RPaM, reads: "A natural person, a legal person or a system.". This is coherent with the semantics of the Friend-of-a-friend "Agent" class, from which the RPaM Agent inherits.
+                <li>The definition of Agent, in RPaM, reads: "A natural person, a legal person or a system.". This is coherent with the semantics of the Friend-of-a-friend "Agent" class, from which the RPaM <code>Agent</code> inherits.
                 </li>
-                <li>The Mandator and the Mandatee are specialisations of Agent, and therefore they may be instantiated as a Natural Person, as a Legal Person or as a System;
+                <li>The <code>Mandator</code> and the Mandatee are specialisations of Agent, and therefore they may be instantiated as a Natural Person, as a Legal Person or as a System;
                 </li>
                 <li>In some countries, in order to properly identify a Natural Person, there is the need to indicate a minimum information about the mother and the father (normally their given and family names). The RPaM ontology solves this by relating the Natural Person class with itself. This way, if some more attributes of the related natural persons were needed in those or other countries they would be available without having to extend the current model.
                     <div>
@@ -3036,7 +3042,7 @@ access_token=[the access token]
                     </aside></td></tr></table>
                     </div>
                 </li>
-                <li>Systems may be representatives of natural and legal persons. As per today, the legal framework and Public Administrations do not rely on "systems" if the actions to undertake carry responsibility and liability. Nonetheless this is changing rapidly, and one example is the use of automated solutions (systems) that use seals. These types of practices are being included in the EU and MS legislations (e.g. eIDAS) as, in the end, systems are "representatives" of their owners, and as such they need to be identified as surrogates of a Person (normally a Legal Person). The model proposed in RPaM foresees the situation where Systems could act on behalf of a Person, and therefore they could replace the Person they represent as both the Mandator and the Mandatee.
+                <li>Systems may be representatives of natural and legal persons. As per today, the legal framework and Public Administrations do not rely on "systems" if the actions to undertake carry responsibility and liability. Nonetheless this is changing rapidly, and one example is the use of automated solutions (systems) that use seals. These types of practices are being included in the EU and MS legislations (e.g. eIDAS) as, in the end, systems are "representatives" of their owners, and as such they need to be identified as surrogates of a Person (normally a Legal Person). The model proposed in RPaM foresees the situation where Systems could act on behalf of a Person, and therefore they could replace the Person they represent as both the <code>Mandator</code> and the Mandatee.
                     <div>
                     <table style='width:100%;margin:1em 0;'><tr><td class='xnotet'><aside class='xnotea'>
                         <p>While the LEAR Credential supports Systems as representatives, this is not the focus of this version of the document. An upgraded version will describe the LEAR Credential for Systems.
@@ -3046,91 +3052,124 @@ access_token=[the access token]
                 </li>
                 <li>Two frequent situations are 1) when multiple organisations use one shared system, and 2) the opposite, when one organisation uses multiple systems. In both cases, but specially in the second one, it is important to identify well to what organisation the system belongs and who is using it. One common way of identifying uniquely the system and checking its rights to interoperate is to register its IP address or a persistent URL, i.e. the system end-point. The combinations of end-point, additional system identifiers, ownership (property "belongsTo"), and the identification(s) of the owner allow to identify who is actually using it and what for. See the diagram Mandate Request and Mandate Response for other examples regarding Service Providers and Mandate Management Systems.
                 </li>
-                <li>The classes like ubl:Contact, ubl:PostalAddress, org:Site, etc., can be used when there is the need of getting in touch with any of the agents, e.g. in the case notifications from the Service Provider to the Mandator and Mandatee could be relevant.
+                <li>The classes like ubl:Contact, ubl:PostalAddress, org:Site, etc., can be used when there is the need of getting in touch with any of the agents, e.g. in the case notifications from the Service Provider to the <code>Mandator</code> and Mandatee could be relevant.
                 </li>
             </ol>
         </section>
     </section>
     <section id='Concrete model'><h2>Concrete model</h2>
 
-        <p>We now describe the mapping of the conceptual model into the concrete representation of a LEAR Credential.
+        <p>We now describe the mapping of the conceptual model into the concrete representation of a Mandate in a LEAR Credential.
         </p>
-        <p>In general, powers of representation inside the LEAR Credential MUST contain:
+        <p>The <code>Mandate</code> is represented in the LEAR Credential as an object inside the <code>credentialSubject</code> object. An example of such object is the following:
         </p>
-        <ol>
-            <li>Identification of the legal representative: in general it is a natural person but it may also be a legal person.
-            </li>
-            <li>Identification of the employee: a natural person.
-            </li>
-            <li>Type of power of representation: may be <code>General</code>, <code>For an organisation</code> or <code>For services</code>.
-            </li>
-            <li>Capability granted: may be <code>All</code>, <code>Query</code>, <code>Process</code>, <code>Receive Notifications</code>.
-            </li>
-            <li>Dates of validity of the representation.
-            </li>
-            <li>Evidences: additional information required to prove the representation.
-            </li>
-        </ol>
-        <p>There are three types of powers of representation:
-        </p>
-        <ol>
-            <li><code>General</code>, where the representative can act on behalf of the organisation in any action and for any third-party organisation. We do not use this type because it is too broad and virtually equivalent to a legal representative.
-            </li>
-            <li><code>For an organisation</code>, where the representative can act on behalf of the organisation when using any service provided by a concrete organisation (e.g. for DOME).
-            </li>
-            <li><code>For some services</code>, where the representative can act on behalf of the organisation for a concrete set of services provided by a given organisation.
-            </li>
-        </ol>
-        <p>Aditionally, the powers of representation must indicate the capabilities, which can be:
-        </p>
-        <ul>
-            <li><code>All</code>: includes <code>Process</code>, <code>Query</code> and <code>Receive notifications</code>, or
-            </li>
-            <li>the combination of the partial capabilities (<code>Process</code>, <code>Query</code> and <code>Receive notifications</code>), which can be:
-            </li>
-            <ul>
-                <li><code>Process</code>
-                </li>
-                <li><code>Query</code>
-                </li>
-                <li><code>Receive notifications</code>
-                </li>
-                <li><code>Process</code> and <code>Query</code>
-                </li>
-                <li><code>Process</code>and <code>Receive notifications</code>
-                </li>
-                <li><code>Query</code>and <code>Receive notifications</code>
-                </li>
-            </ul>
-        </ul>
-        <section id='DOME Power Taxonomy'><h2>DOME Power Taxonomy</h2>
 
-            <p>The Taxonomy has been built based on the TM Forum "User Roles and Permissions Management API", around these main concepts:
+<table style="width:100%;"><tr><td class="codecolor">
+<pre class='nohighlight precolor'>
+<span style="color:#d14">&#34;mandate&#34;</span><span style="color:#a61717;background-color:#e3d2d2">:</span> {
+    <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;bb1482e1-0513-4c90-9c80-98a2e4d14984&#34;</span>,
+    <span style="color:#000080">&#34;mandator&#34;</span>: {
+        <span style="color:#000080">&#34;cn&#34;</span>: <span style="color:#d14">&#34;56565656V Jesus Ruiz&#34;</span>,
+        <span style="color:#000080">&#34;serialNumber&#34;</span>: <span style="color:#d14">&#34;56565656V&#34;</span>,
+        <span style="color:#000080">&#34;organizationIdentifier&#34;</span>: <span style="color:#d14">&#34;VATES-12345678&#34;</span>,
+        <span style="color:#000080">&#34;o&#34;</span>: <span style="color:#d14">&#34;GoodAir&#34;</span>,
+        <span style="color:#000080">&#34;c&#34;</span>: <span style="color:#d14">&#34;ES&#34;</span>
+    },
+    <span style="color:#000080">&#34;mandatee&#34;</span>: {
+        <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK&#34;</span>,
+        <span style="color:#000080">&#34;title&#34;</span>: <span style="color:#d14">&#34;Mr.&#34;</span>,
+        <span style="color:#000080">&#34;first_name&#34;</span>: <span style="color:#d14">&#34;John&#34;</span>,
+        <span style="color:#000080">&#34;last_name&#34;</span>: <span style="color:#d14">&#34;Doe&#34;</span>,
+        <span style="color:#000080">&#34;gender&#34;</span>: <span style="color:#d14">&#34;M&#34;</span>,
+        <span style="color:#000080">&#34;email&#34;</span>: <span style="color:#d14">&#34;johndoe@goodair.com&#34;</span>,
+        <span style="color:#000080">&#34;mobile_phone&#34;</span>: <span style="color:#d14">&#34;+34787426623&#34;</span>
+    },
+    <span style="color:#000080">&#34;power&#34;</span>: [
+        {
+            <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;53493323798&#34;</span>,
+            <span style="color:#000080">&#34;powerSource&#34;</span>: <span style="color:#d14">&#34;https://eur-lex.europa.eu/eli/reg/2014/910/oj&#34;</span>,
+            <span style="color:#000080">&#34;tmf:type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
+            <span style="color:#000080">&#34;tmf:name&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
+            <span style="color:#000080">&#34;tmf:function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
+            <span style="color:#000080">&#34;tmf:action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
+        }
+    ],
+    <span style="color:#000080">&#34;lifeSpan&#34;</span>: {
+        <span style="color:#000080">&#34;startDateTime&#34;</span>: <span style="color:#d14">&#34;2023-10-01&#34;</span>,
+        <span style="color:#000080">&#34;endDateTime&#34;</span>: <span style="color:#d14">&#34;2025-10-01&#34;</span>
+    }
+}
+</pre></td></tr></table>
+
+        <p>In the above example, we have specified that the <code>mandator</code> (the legal representative of the company) has delegated to the <code>mandatee</code> (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields <code>tmf:type</code> and <code>tmf:name</code>) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields <code>tmf:function</code>and <code>tmf:action</code>). The actual data model, which can be used to express mor complex delegations is described below in more detail.
+        </p>
+        <p>The <code>Mandate</code> has an <code>id</code> field which is used to uniquely identify the Mandate and that can be used to revoke the Mandate if needed. To maintain privacy, the <code>id</code> field should not have any relationship with the rest of the data in the Mandate.
+        </p>
+        <section id='Mandator'><h2>Mandator</h2>
+
+            <p>The object <code>mandator</code> identifies the employee of the company acting as Mandator and delegating a subset of his powers on the Mandatee. In the example, the Mandator is the legal representative of the company and is identified with a subset of the fields in the <code>subject</code>object in the eIDAS certificate that will be used to sign the LEAR Credential. The minimum set of fields are the ones in the example.
+            </p>
+        </section>
+        <section id='Mandatee'><h2>Mandatee</h2>
+
+            <p>The object <code>mandatee</code> identifies the employee on whom a subset of powers is delegated. In the example, the employee is identified by:
             </p>
             <ul>
-                <li>A <b>manageable asset</b> is the realization of something that can be used and managed by users (e.g.: any of the resources created as part of a purchased product, a service provided to individuals, a block of personal data of an individual, a shopping cart entity….. ).
+                <li>The <code>id</code> field containing a <code>did:key</code> where the employee controls the private key associated to the <code>did:key</code>. This is required to enable the LEAR Credential to be used as an authentication mechanism. More details in section <a href="#binding-id-holder" class="xref">Binding the Issued Credential to the identifier of the End-User possessing that Credential</a>.
                 </li>
-                <li>An <b>user</b> is the individual who can make use and manage the functions exposed by a given manageable asset. It can be the existing registered customer or any other individual who has been granted access to use and/or manage the asset
-                </li>
-                <li>A basic <b>permission</b> provides information regarding the access privileges of a given user over manageable assets (or different functions within each asset).
-                </li>
-                <li>A <b>privilege</b> defines an independent allowed access level over any of the operations that can be performed over a given asset (e.g.: CRUD on the different menu/function/UI elements)
-                </li>
-                <li>A <b>user role</b> is defined as the entity that defines a set of privileges covering various functions and/or manageable assets. When a user is assigned a given role then it is actually allocated all the privileges defined for that roletype and the corresponding permissions are created for that user
+                <li>A set of attributes which are required by the specific use case where the LEAR Credential will be used. Those attributes can be considered equivalent to the fields that would be filled in a form when a "classical" PDF document would be used to authorise an employee.
                 </li>
             </ul>
-            <p>A Privilege is a detailed information concerning an individual access entitlement.
+        </section>
+        <section id='Power'><h2>Power</h2>
+
+            <p>This object is an array where each element is a power that is delegated from the Mandator to the Mandatee. The fields of each power object are:
             </p>
-            <ul>
-                <li id='action_2832'><b>action</b>: Level of access granted as part of the permission.
-                </li>
-                <li id='function_2833'><b>function</b>: Specific function that can be managed over a given asset.
-                </li>
-                <li id='id_2834'><b>id</b>: Identifier of the privilege.
-                </li>
-                <li id='manageableAsset_2835'><b>manageableAsset</b>: An entity reference (EntityRef). Entity reference schema to be use for all entityRef class.
-                </li>
-            </ul>
+            <table class='deftable'>
+                <tr><td style='padding-left: 0px;'><b>id</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>The identifier of the power. It must be unique in the context of the Credential where it is included.
+                    </p>
+                </td></tr>
+                <tr><td style='padding-left: 0px;'><b>powerSource</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>The <a href="https://eur-lex.europa.eu/content/help/eurlex-content/eli.html">European Legislation Identifier (ELI)</a> for the source of the power that is being delegated. The Mandator is granted with that power and the Mandator empowers the mandatee with that power.
+                    </p>
+                </td></tr>
+                <tr><td style='padding-left: 0px;'><b>tmf:type</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>The type of power, which can be:
+                    </p>
+                    <table class='deftable'>
+                        <tr><td style='padding-left: 0px;'><b>"domain"</b></td></tr><tr><td style='padding-left: 20px;'>
+                            <p>The mandatee has access to the services (subject to the restrictions defined by <code>action</code> and <code>function</code>) provided by one or more organisations where the services have been classified as belonging to that domain. The classification of services is arbitrary and defined by the service providers. A typical scenario is when some service providers agree on a classification of the services that they provide in the context of an ecosystem (like DOME), and the possible domains are made public, including the mapping to a given set of services in each provider.
+                            </p>
+                            <p>The name of the domain must be unique via namespace to avoid potential clashes in different ecosystems.
+                            </p>
+                            <p>The domain name used in DOME is "DOME-Marketplace".
+                            </p>
+                        </td></tr>
+                        <tr><td style='padding-left: 0px;'><b>"organization"</b></td></tr><tr><td style='padding-left: 20px;'>
+                            <p>The mandatee has access only to the services provided by one or more organizations, listed specifically in the power.
+                            </p>
+                        </td></tr>
+                    </table>
+                </td></tr>
+                <tr><td style='padding-left: 0px;'><b>tmf:name</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>An array with the names of the Domains or Organisations where the Mandatee is authorised to interact with this Mandate.
+                    </p>
+                </td></tr>
+                <tr><td style='padding-left: 0px;'><b>tmf:function</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>A string specifying the name of the function that the Mandatee can perform. The definition of the possible functions is done by the Verifier (the entity with which the Mandatee will interact with the LEAR Credential). In the example, the funcion is "Onboarding", which enables the Mandatee to use the services provided by DOME to onboard organisations in the ecosystem.
+                    </p>
+                </td></tr>
+                <tr><td style='padding-left: 0px;'><b>tmf:action</b></td></tr><tr><td style='padding-left: 20px;'>
+                    <p>An array with the concrete actions belonging to the function that the Mandatee is allowed to execute. In the example, the Mandatee is allowed to perform the Onboarding process offered by DOME. The concrete set of actions in a given use case is specific to the use case.
+                    </p>
+                </td></tr>
+            </table>
+        </section>
+        <section id='lifeSpan'><h2>lifeSpan</h2>
+
+            <p>The period of time (start and end) when the Mandate is active. Both fields ("startDateTime" and "endDateTime") are optionel.
+            </p>
         </section>
     </section>
 </section>
