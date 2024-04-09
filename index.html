@@ -444,7 +444,7 @@
         </p>
         <p>This is described in the following figure:
         </p>
-        <figure id='Trust Framework-Signatures2'><img src='images/eIDAS Trust Framework-Signatures2.drawio.png' alt='Signatures of JSON documents'>
+        <figure id='Trust Framework-Signatures2' class='figureshadow'><img src='images/eIDAS Trust Framework-Signatures2.drawio.png' alt='Signatures of JSON documents'>
         <figcaption>Signatures of JSON documents</figcaption></figure>
 
         <p>This mechanism for sealing/signing the Verifiable Credentials has the following properties:
@@ -484,12 +484,12 @@
         </p>
         <p>For the purpose of this discussion we use a diagram derived from the taxonomy <a href="https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas">defined in EBSI</a>:
         </p>
-        <figure><img src='builtassets/plantuml_9f01927a70a78cd7d7d7cf2e5f5880d8.png' alt='Classes of credentials'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_9f01927a70a78cd7d7d7cf2e5f5880d8.png' alt='Classes of credentials'>
         <figcaption>Classes of credentials</figcaption></figure>
 
         <p>And this is the chain of trust from the "Authentic sources" to the credential that the employee (for example) holds.
         </p>
-        <figure><img src='builtassets/plantuml_server_dbd5762468f231440ee031c579da5bb8.png' alt='Chain of trust'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_server_dbd5762468f231440ee031c579da5bb8.png' alt='Chain of trust'>
         <figcaption>Chain of trust</figcaption></figure>
 
         <p>The sections below refer to this diagram for each type of credential discussed.
@@ -535,7 +535,7 @@
         </p>
         <p>We repeat here the taxonomy diagram to facilitate the description of the LEARCredential.
         </p>
-        <figure><img src='builtassets/plantuml_9f01927a70a78cd7d7d7cf2e5f5880d8.png' alt='The LEARCredential'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_9f01927a70a78cd7d7d7cf2e5f5880d8.png' alt='The LEARCredential'>
         <figcaption>The LEARCredential</figcaption></figure>
 
         <p>The subject identified in the credential can authenticate to perform a protected process by using a special type of Verifiable Credential called <code>LEARCredential</code> (from <b>L</b>egal <b>E</b>ntity <b>A</b>uthorised <b>R</b>epresentation).
@@ -602,7 +602,7 @@
         </p>
         <p>The high-level view of the process is described in the following diagram, where the legal entity representative of a company appoints an employee to perform some processes with a third party (the Relying Party):
         </p>
-        <figure><img src='builtassets/plantuml_1c84d3666027477e2d28e680104280b3.png' alt='High level view of issuance of LEARCredential to an employee'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_1c84d3666027477e2d28e680104280b3.png' alt='High level view of issuance of LEARCredential to an employee'>
         <figcaption>High level view of issuance of LEARCredential to an employee</figcaption></figure>
 
     </section>
@@ -644,7 +644,7 @@
             </p>
             <p>The relevant section of the document for the EU Commission Funding & tenders portal is shown here:
             </p>
-            <figure id='lear-appointment-letter-1'><img src='images/lear-appointment-letter-1.png' alt='LEAR subject identification data.'>
+            <figure id='lear-appointment-letter-1' class='figureshadow'><img src='images/lear-appointment-letter-1.png' alt='LEAR subject identification data.'>
             <figcaption>LEAR subject identification data.</figcaption></figure>
 
             <p>From the above form we can derive the following claims using the example data:
@@ -771,10 +771,10 @@
     <span style="color:#000080">&#34;power&#34;</span>: [
         {
             <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;53493323798&#34;</span>,
-            <span style="color:#000080">&#34;tmf:type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
-            <span style="color:#000080">&#34;tmf:name&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
-            <span style="color:#000080">&#34;tmf:function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
-            <span style="color:#000080">&#34;tmf:action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
+            <span style="color:#000080">&#34;tmf_type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
+            <span style="color:#000080">&#34;tmf_name&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
+            <span style="color:#000080">&#34;tmf_function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
+            <span style="color:#000080">&#34;tmf_action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
         }
     ],
     <span style="color:#000080">&#34;lifeSpan&#34;</span>: {
@@ -829,10 +829,10 @@
             <span style="color:#000080">&#34;power&#34;</span>: [
                 {
                     <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;53493323798&#34;</span>,
-                    <span style="color:#000080">&#34;tmf:type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
-                    <span style="color:#000080">&#34;tmf:domain&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
-                    <span style="color:#000080">&#34;tmf:function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
-                    <span style="color:#000080">&#34;tmf:action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
+                    <span style="color:#000080">&#34;tmf_type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
+                    <span style="color:#000080">&#34;tmf_domain&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
+                    <span style="color:#000080">&#34;tmf_function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
+                    <span style="color:#000080">&#34;tmf_action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
                 }
             ],
             <span style="color:#000080">&#34;lifeSpan&#34;</span>: {
@@ -895,7 +895,7 @@
                     </p>
                 </td></tr>
             </table>
-            <figure><img src='builtassets/plantuml_614e2f068e1fef535fb3123c83e7f1d3.png' alt='Overall LEAR Credential issuance flow'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_614e2f068e1fef535fb3123c83e7f1d3.png' alt='Overall LEAR Credential issuance flow'>
             <figcaption>Overall LEAR Credential issuance flow</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -957,7 +957,7 @@
         </section>
         <section id='The Human Resources employee introduces employee data into Issuer'><h2>The Human Resources employee introduces employee data into Issuer</h2>
 
-            <figure><img src='builtassets/plantuml_c5f1c541e7d71bc2a633454d26b16c12.png' alt='Creating a Credential Offer'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_c5f1c541e7d71bc2a633454d26b16c12.png' alt='Creating a Credential Offer'>
             <figcaption>Creating a Credential Offer</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -983,7 +983,7 @@
         </section>
         <section id='Employee accesses Issuer portal'><h2>Employee accesses Issuer portal</h2>
 
-            <figure><img src='builtassets/plantuml_0e4a69fcedeff2e1617b08e46c31944b.png' alt='Employee scans the Credential Offer'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_0e4a69fcedeff2e1617b08e46c31944b.png' alt='Employee scans the Credential Offer'>
             <figcaption>Employee scans the Credential Offer</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -1053,7 +1053,7 @@
         </section>
         <section id='Credential Offer'><h2>Credential Offer</h2>
 
-            <figure><img src='builtassets/plantuml_c0320b5e172875d73fd29ffde3b13f67.png' alt='Credential Offer'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_c0320b5e172875d73fd29ffde3b13f67.png' alt='Credential Offer'>
             <figcaption>Credential Offer</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -1220,7 +1220,7 @@
         </section>
         <section id='Credential Issuer Metadata'><h2>Credential Issuer Metadata</h2>
 
-            <figure><img src='builtassets/plantuml_1017987f98f80534afa4276aeeee7e1d.png' alt='Credential Offer'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_1017987f98f80534afa4276aeeee7e1d.png' alt='Credential Offer'>
             <figcaption>Credential Offer</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -1432,7 +1432,7 @@
         </section>
         <section id='Request an Access Token'><h2>Request an Access Token</h2>
 
-            <figure><img src='builtassets/plantuml_483555d70fa11b7bf69cd3d4f399f3bd.png' alt='Request Access Token'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_483555d70fa11b7bf69cd3d4f399f3bd.png' alt='Request Access Token'>
             <figcaption>Request Access Token</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -1803,7 +1803,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
 
         <p>Issuing a LEAR Credential with a certificate for seals is essentially the same as issuing it with a certificate for signatures, with the exception that the actual signing step can be fully automated and there is no need for the legal representative to explicitly authorise the signature. This is represented in the following diagram:
         </p>
-        <figure><img src='builtassets/plantuml_37a56f8ad96e0304d1f9b8a873979078.png' alt='Issuance with a seal'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_37a56f8ad96e0304d1f9b8a873979078.png' alt='Issuance with a seal'>
         <figcaption>Issuance with a seal</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -1965,7 +1965,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
 
             <p>For the explanation we will use an expanded version of [[[#fig-general-architecture]]], which can be seen in [[[#fig-authentication]]].
             </p>
-            <figure id='fig-authentication'><img src='images/login_in_DOME/authn_architecture_authentication.drawio.png' alt='Authentication, H2M flow'>
+            <figure id='fig-authentication' class='figureshadow'><img src='images/login_in_DOME/authn_architecture_authentication.drawio.png' alt='Authentication, H2M flow'>
             <figcaption>Authentication, H2M flow</figcaption></figure>
 
             <p>The high level flow is the following:
@@ -2067,7 +2067,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
             </p>
             <p>We use a QR code to start the process and allow the wallet to receive the Authorization Request from the Verifier, and respond with an Authorization Response, sent to the Verifier in the body of an HTTP <code>POST</code> request.
             </p>
-            <figure><img src='builtassets/plantuml_51a6d72099c0f633c0a0905d9fcd4b0b.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_51a6d72099c0f633c0a0905d9fcd4b0b.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2202,7 +2202,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
 
             <p>Before sending the Authentication Response, the wallet should verify that the Authorization Request is correct. The most important verifications are described here:
             </p>
-            <figure><img src='builtassets/plantuml_7d3dc5e7b6f4ba49b913e048dd96c2be.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_7d3dc5e7b6f4ba49b913e048dd96c2be.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2234,7 +2234,7 @@ Cache-Control<span style="color:#000;font-weight:bold">:</span> no-store
 
             <p>Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the <code>redirect_uri</code> specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
             </p>
-            <figure><img src='builtassets/plantuml_089aed180d78fe7872d1120fafc45855.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_089aed180d78fe7872d1120fafc45855.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2302,7 +2302,7 @@ presentation_submission=[see definition below]
             </p>
             <p>The process of verifying the Authorization Response and authenticating the user with the LEARCredential is the following:
             </p>
-            <figure><img src='builtassets/plantuml_5e65e6b64889e67cad7ed8a938eee406.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_5e65e6b64889e67cad7ed8a938eee406.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2410,7 +2410,7 @@ access_token=[the access token]
             </p>
             <p>We assume, like in the H2M case, that the legal entity operating the application issues a LEARCredential to the application, and that the application uses a so-called <code>enterprise wallet</code> to store and manage Verifiable Credentials and their associated private keys.
             </p>
-            <figure><img src='images/login_in_DOME/authn_architecture_numbered.drawio.png' alt='Architecture overview'>
+            <figure class='figureshadow'><img src='images/login_in_DOME/authn_architecture_numbered.drawio.png' alt='Architecture overview'>
             <figcaption>Architecture overview</figcaption></figure>
 
             <p>The high level flow is the following:
@@ -2495,7 +2495,7 @@ access_token=[the access token]
             <p>The
 Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the <code>redirect_uri</code> specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
             </p>
-            <figure><img src='builtassets/plantuml_089aed180d78fe7872d1120fafc45855.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_089aed180d78fe7872d1120fafc45855.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2563,7 +2563,7 @@ presentation_submission=[see definition below]
             </p>
             <p>The process of verifying the Authorization Response and authenticating the user with the LEARCredential is the following:
             </p>
-            <figure><img src='builtassets/plantuml_5e65e6b64889e67cad7ed8a938eee406.png' alt='Starting the authentication phase'>
+            <figure class='figureshadow'><img src='builtassets/plantuml_5e65e6b64889e67cad7ed8a938eee406.png' alt='Starting the authentication phase'>
             <figcaption>Starting the authentication phase</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2697,7 +2697,7 @@ access_token=[the access token]
 
         <p>Every request to a protected resource is intercepted by the PEP (Policy Enforcement Point), and to know if the request should be authorised or not, the PEP asks to the PDP (Policy Decision Point) for a decision. The PDP needs to know what are the policy rules that should be applied to the request, and it uses the PRP (Policy Retrieval Point) to retrieve those policies.
         </p>
-        <figure><img src='builtassets/plantuml_48aaffcb8cecf468dbf62950e963e714.png' alt='Determine the Authorization Policies'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_48aaffcb8cecf468dbf62950e963e714.png' alt='Determine the Authorization Policies'>
         <figcaption>Determine the Authorization Policies</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2809,7 +2809,7 @@ access_token=[the access token]
         </p>
         <p>The PDP does not have hardcoded the actual Trusted Lists to query, but they are determined dynamically from the policies retrieved from the PRP. In simple use cases there may be one or two lists to query which are the same for all requests. But the mechanism described here can cater for very complex scenarios where the lists may be different depending on the requests and also from the dynamic environmental information retrieved from the PIP.
         </p>
-        <figure><img src='builtassets/plantuml_e9b5fd10a95e7efdd99361a716fd9818.png' alt='Determine Trusted Issuer Lists to query'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_e9b5fd10a95e7efdd99361a716fd9818.png' alt='Determine Trusted Issuer Lists to query'>
         <figcaption>Determine Trusted Issuer Lists to query</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2853,7 +2853,7 @@ access_token=[the access token]
         </p>
         <p>For simplicity, the diagram below shows the query of the Trusted Issuer Lists as a single interaction to a single box, but the actual interactions can be very complex if required. In addition, the diagram does not specify whether the list is "private" or "global".
         </p>
-        <figure><img src='builtassets/plantuml_4e81c481b979246d42f8eac88fc5bb50.png' alt='Query the Trusted Issuer Lists'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_4e81c481b979246d42f8eac88fc5bb50.png' alt='Query the Trusted Issuer Lists'>
         <figcaption>Query the Trusted Issuer Lists</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2873,7 +2873,7 @@ access_token=[the access token]
 
         <p>Once the PDP has all the attributes required for policy evaluation, it computes a decision and returns that decision to the PEP which will enforce it.
         </p>
-        <figure><img src='builtassets/plantuml_be3b0ee126e5440e3c75eb214242be0d.png' alt='Compute the decision'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_be3b0ee126e5440e3c75eb214242be0d.png' alt='Compute the decision'>
         <figcaption>Compute the decision</figcaption></figure>
 
 <!-- ****** EXPLANATIONS **** -->
@@ -2905,7 +2905,7 @@ access_token=[the access token]
 
         <p>The following diagram combines all the steps in a single one to provide an overall view of the authorization process.
         </p>
-        <figure><img src='builtassets/plantuml_c8e7f45dfb37b5dfb38c586a43f43ac2.png' alt='Summary of the Authorization process'>
+        <figure class='figureshadow'><img src='builtassets/plantuml_c8e7f45dfb37b5dfb38c586a43f43ac2.png' alt='Summary of the Authorization process'>
         <figcaption>Summary of the Authorization process</figcaption></figure>
 
     </section>
@@ -2924,7 +2924,7 @@ access_token=[the access token]
             </p>
             <p>The following diagram defines the class Mandate and its relations with the other classes of the data model, as it appears in the original RPaM Ontology project. We will describe later the concrete usage in DOME.
             </p>
-            <figure><img src='images/rpam/RPaM-Mandate.png' alt='Mandate ontology. Source: [[RPaM-Ontology]]'>
+            <figure class='figureshadow'><img src='images/rpam/RPaM-Mandate.png' alt='Mandate ontology. Source: [[RPaM-Ontology]]'>
             <figcaption>Mandate ontology. Source: [[RPaM-Ontology]]</figcaption></figure>
 
             <ol>
@@ -3026,7 +3026,7 @@ access_token=[the access token]
             </p>
             <p>The following diagram represents the entities and relations for the definition of <code>Agent</code> in the context of RPaM:
             </p>
-            <figure id='agent-ontology'><img src='images/rpam/RPaM-Agent.png' alt='Agent ontology. Source: [[RPaM-Ontology]]'>
+            <figure id='agent-ontology' class='figureshadow'><img src='images/rpam/RPaM-Agent.png' alt='Agent ontology. Source: [[RPaM-Ontology]]'>
             <figcaption>Agent ontology. Source: [[RPaM-Ontology]]</figcaption></figure>
 
             <ol>
@@ -3088,10 +3088,10 @@ access_token=[the access token]
         {
             <span style="color:#000080">&#34;id&#34;</span>: <span style="color:#d14">&#34;53493323798&#34;</span>,
             <span style="color:#000080">&#34;powerSource&#34;</span>: <span style="color:#d14">&#34;https://eur-lex.europa.eu/eli/reg/2014/910/oj&#34;</span>,
-            <span style="color:#000080">&#34;tmf:type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
-            <span style="color:#000080">&#34;tmf:name&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
-            <span style="color:#000080">&#34;tmf:function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
-            <span style="color:#000080">&#34;tmf:action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
+            <span style="color:#000080">&#34;tmf_type&#34;</span>: <span style="color:#d14">&#34;Domain&#34;</span>,
+            <span style="color:#000080">&#34;tmf_name&#34;</span>: [<span style="color:#d14">&#34;DOME&#34;</span>],
+            <span style="color:#000080">&#34;tmf_function&#34;</span>: <span style="color:#d14">&#34;Onboarding&#34;</span>,
+            <span style="color:#000080">&#34;tmf_action&#34;</span>: [<span style="color:#d14">&#34;Process&#34;</span>]
         }
     ],
     <span style="color:#000080">&#34;lifeSpan&#34;</span>: {
@@ -3101,7 +3101,7 @@ access_token=[the access token]
 }
 </pre></td></tr></table>
 
-        <p>In the above example, we have specified that the <code>mandator</code> (the legal representative of the company) has delegated to the <code>mandatee</code> (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields <code>tmf:type</code> and <code>tmf:name</code>) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields <code>tmf:function</code>and <code>tmf:action</code>). The actual data model, which can be used to express mor complex delegations is described below in more detail.
+        <p>In the above example, we have specified that the <code>mandator</code> (the legal representative of the company) has delegated to the <code>mandatee</code> (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields <code>tmf_type</code> and <code>tmf_name</code>) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields <code>tmf_function</code>and <code>tmf_action</code>). The actual data model, which can be used to express mor complex delegations is described below in more detail.
         </p>
         <p>The <code>Mandate</code> has an <code>id</code> field which is used to uniquely identify the Mandate and that can be used to revoke the Mandate if needed. To maintain privacy, the <code>id</code> field should not have any relationship with the rest of the data in the Mandate.
         </p>
@@ -3134,7 +3134,7 @@ access_token=[the access token]
                     <p>The <a href="https://eur-lex.europa.eu/content/help/eurlex-content/eli.html">European Legislation Identifier (ELI)</a> for the source of the power that is being delegated. The Mandator is granted with that power and the Mandator empowers the mandatee with that power.
                     </p>
                 </td></tr>
-                <tr><td style='padding-left: 0px;'><b>tmf:type</b></td></tr><tr><td style='padding-left: 20px;'>
+                <tr><td style='padding-left: 0px;'><b>tmf_type</b></td></tr><tr><td style='padding-left: 20px;'>
                     <p>The type of power, which can be:
                     </p>
                     <table class='deftable'>
@@ -3152,15 +3152,15 @@ access_token=[the access token]
                         </td></tr>
                     </table>
                 </td></tr>
-                <tr><td style='padding-left: 0px;'><b>tmf:name</b></td></tr><tr><td style='padding-left: 20px;'>
+                <tr><td style='padding-left: 0px;'><b>tmf_name</b></td></tr><tr><td style='padding-left: 20px;'>
                     <p>An array with the names of the Domains or Organisations where the Mandatee is authorised to interact with this Mandate.
                     </p>
                 </td></tr>
-                <tr><td style='padding-left: 0px;'><b>tmf:function</b></td></tr><tr><td style='padding-left: 20px;'>
+                <tr><td style='padding-left: 0px;'><b>tmf_function</b></td></tr><tr><td style='padding-left: 20px;'>
                     <p>A string specifying the name of the function that the Mandatee can perform. The definition of the possible functions is done by the Verifier (the entity with which the Mandatee will interact with the LEAR Credential). In the example, the funcion is "Onboarding", which enables the Mandatee to use the services provided by DOME to onboard organisations in the ecosystem.
                     </p>
                 </td></tr>
-                <tr><td style='padding-left: 0px;'><b>tmf:action</b></td></tr><tr><td style='padding-left: 20px;'>
+                <tr><td style='padding-left: 0px;'><b>tmf_action</b></td></tr><tr><td style='padding-left: 20px;'>
                     <p>An array with the concrete actions belonging to the function that the Mandatee is allowed to execute. In the example, the Mandatee is allowed to perform the Onboarding process offered by DOME. The concrete set of actions in a given use case is specific to the use case.
                     </p>
                 </td></tr>
@@ -3183,7 +3183,7 @@ access_token=[the access token]
     </p>
     <p>The COO of GoodAir will issue a verifiable credential of type LEARCredential to an employee of GoodAir, signing the credential with his certificate for signatures.
     </p>
-    <figure><img src='builtassets/d2_7edaef13dd6bde3907a92f7bc18e6e64.svg' alt=''>
+    <figure class='figureshadow'><img src='builtassets/d2_7edaef13dd6bde3907a92f7bc18e6e64.svg' alt=''>
     <figcaption></figcaption></figure>
 
     <section id='GoodAir is a service provider'><h2>GoodAir is a service provider</h2>

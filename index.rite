@@ -602,10 +602,10 @@ localBiblioFile: "localbiblio.yaml"
                     "power": [
                         {
                             "id": "53493323798",
-                            "tmf:type": "Domain",
-                            "tmf:name": ["DOME"],
-                            "tmf:function": "Onboarding",
-                            "tmf:action": ["Process"]
+                            "tmf_type": "Domain",
+                            "tmf_name": ["DOME"],
+                            "tmf_function": "Onboarding",
+                            "tmf_action": ["Process"]
                         }
                     ],
                     "lifeSpan": {
@@ -657,10 +657,10 @@ localBiblioFile: "localbiblio.yaml"
                             "power": [
                                 {
                                     "id": "53493323798",
-                                    "tmf:type": "Domain",
-                                    "tmf:domain": ["DOME"],
-                                    "tmf:function": "Onboarding",
-                                    "tmf:action": ["Process"]
+                                    "tmf_type": "Domain",
+                                    "tmf_domain": ["DOME"],
+                                    "tmf_function": "Onboarding",
+                                    "tmf_action": ["Process"]
                                 }
                             ],
                             "lifeSpan": {
@@ -2804,10 +2804,10 @@ localBiblioFile: "localbiblio.yaml"
                     {
                         "id": "53493323798",
                         "powerSource": "https://eur-lex.europa.eu/eli/reg/2014/910/oj",
-                        "tmf:type": "Domain",
-                        "tmf:name": ["DOME"],
-                        "tmf:function": "Onboarding",
-                        "tmf:action": ["Process"]
+                        "tmf_type": "Domain",
+                        "tmf_name": ["DOME"],
+                        "tmf_function": "Onboarding",
+                        "tmf_action": ["Process"]
                     }
                 ],
                 "lifeSpan": {
@@ -2817,7 +2817,7 @@ localBiblioFile: "localbiblio.yaml"
             }
 
 
-        In the above example, we have specified that the `mandator` (the legal representative of the company) has delegated to the `mandatee` (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields `tmf:type` and `tmf:name`) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields `tmf:function`and `tmf:action`). The actual data model, which can be used to express mor complex delegations is described below in more detail.
+        In the above example, we have specified that the `mandator` (the legal representative of the company) has delegated to the `mandatee` (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields `tmf_type` and `tmf_name`) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields `tmf_function`and `tmf_action`). The actual data model, which can be used to express mor complex delegations is described below in more detail.
 
         The `Mandate` has an `id` field which is used to uniquely identify the Mandate and that can be used to revoke the Mandate if needed. To maintain privacy, the `id` field should not have any relationship with the rest of the data in the Mandate.
 
@@ -2844,7 +2844,7 @@ localBiblioFile: "localbiblio.yaml"
                 <x-dt>powerSource
                     The <a href="https://eur-lex.europa.eu/content/help/eurlex-content/eli.html">European Legislation Identifier (ELI)</a> for the source of the power that is being delegated. The Mandator is granted with that power and the Mandator empowers the mandatee with that power.
 
-                <x-dt>tmf:type
+                <x-dt>tmf_type
                     The type of power, which can be:
                     <x-dl>
 
@@ -2858,13 +2858,13 @@ localBiblioFile: "localbiblio.yaml"
                         <x-dt>"organization"
                             The mandatee has access only to the services provided by one or more organizations, listed specifically in the power.
 
-                <x-dt>tmf:name
+                <x-dt>tmf_name
                     An array with the names of the Domains or Organisations where the Mandatee is authorised to interact with this Mandate.
 
-                <x-dt>tmf:function
+                <x-dt>tmf_function
                     A string specifying the name of the function that the Mandatee can perform. The definition of the possible functions is done by the Verifier (the entity with which the Mandatee will interact with the LEAR Credential). In the example, the funcion is "Onboarding", which enables the Mandatee to use the services provided by DOME to onboard organisations in the ecosystem.
 
-                <x-dt>tmf:action
+                <x-dt>tmf_action
                     An array with the concrete actions belonging to the function that the Mandatee is allowed to execute. In the example, the Mandatee is allowed to perform the Onboarding process offered by DOME. The concrete set of actions in a given use case is specific to the use case. 
 
         <section>lifeSpan
