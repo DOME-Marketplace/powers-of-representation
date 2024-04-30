@@ -1,0 +1,67 @@
+---
+title: JAdES with did:elsi
+
+editors:
+    - name: "Jesus Ruiz"
+      email: "hesusruiz@gmail.com"
+      company: "JesusRuiz"
+      companyURL: "https://hesusruiz.github.io/"
+authors:
+    - name: "The DOME project participants"
+
+copyright: >
+   Copyright © 2023 the document editors/authors. Text is available under the
+   <a rel="license" href="https://creativecommons.org/licenses/by/4.0/legalcode">
+   Creative Commons Attribution 4.0 International Public License</a>
+
+latestVersion: "https://DOME-Marketplace.github.io/powers-of-representation/jades/index.html"
+edDraftURI: "https://DOME-Marketplace.github.io/powers-of-representation/jades/index.html"
+github: "https://github.com/DOME-Marketplace/powers-of-representation/jades/"
+og_description: >
+    JAdES with did:elsi
+og_site_name: JAdES with did:elsi
+localBiblioFile: "localbiblio.yaml"
+---
+
+<h1 #title>JAdES with `did:elsi`
+
+
+<section #abstract>
+
+    We describe the application of `did:elsi` to JAdES signatures.
+    
+<section>General requirements
+
+	JAdES signatures may incorporate any of the header parameters specified in IETF RFC 7515 [2] and IETF RFC 7797 [14].
+	
+	The alg header parameter shall be a signed header parameter that qualifies the signature.
+	
+	The cty header parameter shall be a signed header parameter that qualifies the JWS Payload.
+	The cty header parameter shall have the semantics specified in IETF RFC 7515 [2], clause 4.1.10.
+	The cty header parameter should not be present if the sigD header parameter, specified in clause 5.2.8 of the present document, is present within the JAdES signature.
+	The cty header parameter should not be present if the content type is implied by the JWS Payload.
+	The cty header parameter shall not be present if the JWS Payload is a (counter-signed) signature.
+	NOTE: The sigD header parameter has one member that contains information of the format and type of the constituents of the JWS Payload.
+	
+	The kid header parameter shall be a signed header parameter that qualifies the signature.
+	The kid header parameter shall have the semantics specified in IETF RFC 7515 [2], clause 4.1.4.
+	The content of kid header parameter shall be the base64 (IETF RFC 4648 [12]) encoding of one DER-encoded instance of type IssuerSerial type defined in IETF RFC 5035 [5].
+	The header parameter kid shall be used as a hint that can help to identify the signing certificate if other header parameters referencing or containing the signing certificate are present in the JAdES signature.
+	
+	The x5u header parameter shall be a signed header parameter that qualifies the signature.
+	The x5u header parameter shall have the semantics specified in IETF RFC 7515 [2], clause 4.1.5.
+	The x5u member shall be used as a hint, as implementations can have alternative ways for retrieving the referenced certificate if it is not found at the referenced place.
+	
+	JAdES signatures shall not contain the x5t header parameter specified in clause 4.1.7 of IETF RFC 7515 [2].
+	
+	The x5t#S256 shall be a signed header parameter that qualifies the signature.
+	The x5t#S256 header parameter shall have the syntax specified in IETF RFC 7515 [2], clause 4.1.8.
+	A JAdES signature shall have at least one of the following header parameters in its JWS Protected Header: x5t#S256 (specified in clause 4.1.8 of IETF RFC 7515 [2]), x5c (specified in clause 4.1.6 of IETF RFC 7515 [2]), sigX5ts (specified in clause 5.2.2.3 of the present document), or x5t#o (specified in clause 5.2.2 of the present document).
+	
+	NOTE 1: The simultaneous presence of x5t#S256 and x5t#o header parameters is allowed for facilitating interoperability whilst implementations migrate from x5t#S256 to x5t#o.
+	
+	NOTE 2: Profiles of JAdES can allow some of the combinations of the aforementioned header parameters.
+	
+	The x5c header parameter shall be a signed header parameter.
+	
+	
