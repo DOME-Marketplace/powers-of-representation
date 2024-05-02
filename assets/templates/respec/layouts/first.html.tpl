@@ -84,7 +84,7 @@
     {{- with .Config.copyright }}
         {{ . }}
     {{- else}}
-        Copyright © 2021 the document editors/authors. Text is available under the
+        Copyright © 2024 the document editors/authors. Text is available under the
         <a rel="license" href="https://creativecommons.org/licenses/by/4.0/legalcode">
         Creative Commons Attribution 4.0 International Public License</a>
     {{- end}}

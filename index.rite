@@ -2672,11 +2672,209 @@ localBiblioFile: "localbiblio.yaml"
 
 <section>The LEAR Credential as Powers of Representation
 
-    The LEAR Credential is an eMandate, and we base our design in the [[RPaM-Ontology]], which is a project started in 2018 by the Directorate-General for Informatics (DG-DIGIT) of the European Commission, funded by the ISA Programme, to organise and support the development of an ontology about the Representation of Powers and Mandates, from now on the **RPaM Ontology**.
+    The LEARCredential is a machine-readable document representing a Mandate or Powers of Representation. The format used in DOME is a Verifiable Credential using an eIDAS signature to bind the mandate data with the real-world identity of the issuer of the credential.
 
-    Our design is based on the results of that project, with simplifications and specialisations to adapt it to the concrete environment where we intend to use the LEAR Credential. To facilitate the job of the reader of this document, we copy literal sentences from the RPaM Ontology project, and adapt the texts to our requirements. However, the reader is encouraged to access the original documents for more details and understand the original approach, including the <a href="https://everis-rpam.github.io/Glossary.html">RPaM Ontology Glossary</a>.
+    We base our design in the [[RPaM-Ontology]], which is a project started in 2018 by the Directorate-General for Informatics (DG-DIGIT) of the European Commission, funded by the ISA Programme, to organise and support the development of an ontology about the Representation of Powers and Mandates, from now on the **RPaM Ontology**.
 
-    <section>Conceptual Model
+    We adapt the results of that project, with simplifications and specialisations, to the concrete environment where we use the LEARCredential. To facilitate the job of the reader of this document, in some sections we copy literal sentences from the RPaM Ontology project, and adapt the texts to our requirements. However, the reader is encouraged to access the original documents for more details and understand the original approach, including the <a href="https://everis-rpam.github.io/Glossary.html">RPaM Ontology Glossary</a>.
+
+    <section>The Mandate
+
+        According to the RPaM Glossary, a "<i>mandate is a record that describes the terms under which a mandator grants a representation power to a mandatee</i>".
+
+        The conceptual model for a `mandate` in DOME is represented below:
+
+        <div .xcard>
+            <header>**mandate**
+                        
+            The `mandate` is composed of three related objects: `mandator`, `mandatee` and `power`. The `mandate` object is signed with an advanced or qualified signature using an eIDAS certificate.
+
+            <div .xcard>
+                <header>**mandator**
+
+                The object `mandator` identifies the employee of the company who is delegating a subset of her powers on the `mandatee`.
+                
+                The `mandator` is either:
+                
+                <ul>
+                    - a legal representative of the company, according to the official records associated to the incorporation of the organisation (e.g., the business registry of the country of incorporation); or
+                    - an employee who is a `mandatee` in another `mandate` where the `mandator` is a legal representative of the company. We do not support more than two levels of delegation.
+
+            <div .xcard>
+                <header>**mandatee**
+
+                The `mandatee` is the person granted with the power to represent (and act as) the company in some specific actions with third-parties. The powers granted to the `mandatee` must be a subset of the powers of the `mandator`. For example, an employee (the `mandatee`) can be empowered by the legal representative of the company (the `mandator`) to perform the onboarding process in DOME.
+
+                The object `mandatee` identifies the employee on whom a subset of powers is delegated. The `mandatee` object contains:
+
+                <ul>
+                    - A set of attributes of the employee which are required by the specific use case where the LEAR Credential will be used, for example to onboard in the DOME ecosystem and for creating a ProductOffering in the marketplace. Those attributes can be considered equivalent to the fields that would be filled in a form when a "classical" PDF document would be used to authorise an employee.
+                    - A public key associated to the employee and where the employee is the sole controler of the associated private key. This is required to enable the use of the LEARCredential containing the `mandate` as an efficient, scalable and secure authentication and authorisation mechanism.
+                    
+                The private key controlled by the employee is used to prove to Relying parties receiving the LEARCredential that the holder and presenter of the credential is the same person identified in the `mandatee` object.
+                We support two mechanisms for the public key in the `mandatee` object:
+
+                <ul>
+                    - Using a `did:key` where the employee controls the private key associated to the `did:key`.
+                    - Using an eIDAS certificate owned by the employee.
+                    
+                The details of how the public key is bound to the identity of the `mandatee` can be found in section <x-ref "binding-id-holder">.
+
+            <div .xcard>
+                <header>**power**
+
+                This object is a list of each specific power that is delegated from the `mandator` to the `mandatee`. The powers must be concrete and as constrained as possible, and must follow a taxonomy with the semantics well specified.
+
+                In DOME, we have specified a power taxonomy targeted at the interactions with the DOME Federated Marketplace. This means that the actions are well defined, homogeneous and standardised for the ecosystem. We are basically replacing the current mechanisms for Mandates (e.g., paper or PDF) with a more efficient, machine-processable representation in the form of a Verifiable Credential.
+
+                Our Power Taxonomy could be generalised to other actions involving private sector companies, but it is out of scope of this version of the document.
+
+    <section>Mapping to a Verifiable Credential
+
+        We now describe the mapping of the conceptual model into the concrete representation of a Mandate in a LEAR Credential, and more specifically to the `jwt_vc_json` representation (VC Signed as a JWT, Not Using JSON-LD), which is the one used in DOME.
+
+        The `mandate` is represented in the LEAR Credential as an object inside the `credentialSubject` object. An example of a complete LEARCredential is the following:
+
+        <x-code .json>
+            {
+                "@context": [
+                    "https://www.w3.org/ns/credentials/v2",
+                    "https://dome-marketplace.eu/2022/credentials/learcredential/v1"
+                ],
+                "id": "urn:did:elsi:25159389-8dd17b796ac0",
+                "type": ["VerifiableCredential", "LEARCredentialEmployee"],
+                "issuer": {
+                    "id": "did:elsi:VATES-12345678"
+                },
+                "validFrom": "2024-03-22T14:00:00Z",
+                "validTo": "2025-03-22T14:00:00Z",
+                "credentialSubject": {
+                    "mandate": {
+                        "id": "urn:did:elsi:25159389-8dd17b796ac0",
+                        "validFrom": "2024-03-22T14:00:00Z",
+                        "validTo": "2025-03-22T14:00:00Z",
+                        "mandator": {
+                            "cn": "56565656V Jesus Ruiz",
+                            "serialNumber": "56565656V",
+                            "organizationIdentifier": "VATES-12345678",
+                            "o": "GoodAir",
+                            "c": "ES"
+                        },
+                        "mandatee": {
+                            "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+                            "title": "Mr.",
+                            "first_name": "John",
+                            "last_name": "Doe",
+                            "email": "johndoe@goodair.com",
+                            "mobile_phone": "+34787426623"
+                        },
+                        "power": [
+                            {
+                                "id": "53493323798",
+                                "powerSource": "https://eur-lex.europa.eu/eli/reg/2014/910/oj",
+                                "tmf_type": "Domain",
+                                "tmf_domain": ["DOME"],
+                                "tmf_function": "Onboarding",
+                                "tmf_action": ["Execute"]
+                            }
+                        ]
+                    }
+                }
+            }
+
+
+        In the above example, we have specified that the `mandator` (the legal representative of the company) has delegated to the `mandatee` (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields `tmf_type` and `tmf_name`) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields `tmf_function`and `tmf_action`). The actual data model, which can be used to express mor complex delegations is described below in more detail.
+
+        The `mandate` has an optional `id` field which can be used to identify the Mandate when the Verifiable Credential is used to represent a Mandate which exists in other systems like a <a href="https://sede.administracion.gob.es/PAG_Sede/ServiciosElectronicos/RegistroElectronicoDeApoderamientos.html">centralised eMandate registry</a>. When the Mandate is created with the Verifiable Credential, the `id` field of the `mandate` object can be ommitted and the `id` of the credential can be used to identify the Mandate, and revoke it if needed. To maintain privacy, the `id` field should not have any relationship with the rest of the data in the Mandate.
+
+        Similarly, the `mandate` has the optional fields `validFrom` and `validTo` which can be used when the credential represents a Mandate that exists externally. The typical use case is when the Mandate in the external system has a big life span and the issuer of the LEARCredential wants the credential to have a smaller life span. In any case, a Relying party receiving the LEARCredential should use the more restrictive life span when performing the verification checks. That is, it should use the biggest of the `validFrom` claims, and the smallest of the `validTo` claims. 
+
+        <section>Mandator
+
+            There are two possible cases for the Mandator:
+
+            <ol>
+                - The Mandator is the legal representative of the company. In this case, the claims in the `mandator` object are a subset of the fields in the `subject` object in the eIDAS certificate that the legal representative uses to sign the LEARCredential. The minimum set of fields are the ones in the example.
+
+                - The Mandator is an employee who is the Mandatee in another LEARCredential. In this case, the data in the `mandator` object must be the same data that appears in the `mandatee` object of the related LEARCredential.
+
+            In this second case, the `powerSource` in the `power` object (see later) must be the LEARCredential which was used to delegate the powers to the `mandator` from the legal representative of the company.
+
+        <section>Mandatee
+
+            The `mandatee` object contains a set of attributes of the employee which are required by the specific use case where the LEAR Credential will be used, for example to onboard in the DOME ecosystem and for creating a ProductOffering in the marketplace.
+            
+            In DOME, the minimum attributes are `title`, `first_name`, `last_name`, `email` and `mobile_phone`.
+
+            In addition, the `mandatee` object contains a public key where the employee is the sole controller of the associated private key. There are two possible cases:
+
+            <ol>
+                - The employee wants to use her `did:key` where the employee controls the private key associated to the `did:key`. In this case, the `id` claim of the `mandatee` object is the `did:key`.
+                - The employee wants to use her personal or professional eIDAS certificate. In this case, the `mandatee` object must include two claims: the `id` claim with the `did:key` corresponding to the public key in the eIDAS certificate, and the claim `x5c` with the certificate itsef (which also incudes the public key, but we require the `id` field for completeness).
+                
+        <section>Power
+
+            This object is an array where each element is a power that is delegated from the Mandator to the Mandatee. The fields of each power object are:
+
+            <ul>
+                - `id`: The identifier of the power, which must be unique in the context of the Credential where it is included. It can be used as a reference when performing access control, for example in the audit records to identify the specific power that was used to grant access to some protected resource.
+
+                - `powerSource` (conditional): The Mandator draws the power from one (or more) sources of power, e.g. 1) a concrete Legislation; 2) a piece of evidence (as another Mandate, in which case the mandator was a mandatee in that other mandate) and/or 3) a Natural Person with a specific profession that invest him/her with the authority to order to a mandator with a specific role the creation of a mandate, e.g. a judge authorising a civil servant (a `Mandator` that is a Natural Person with the appropriate role) to create a mandate for a relative to represent an incapacitated person).
+
+                    In DOME, there are three cases with specific sources of power:
+
+                    <ol>
+                        - When the Mandator is a legal representative of the company, and the LEARCredential is signed with the eIDAS certificate of representation of the legal representative. In this case, the `powerSource` claim can be ommitted as it is implicit in the eIDAS signature. Alternatively, the `powerSource` claim is an object with the following fields:
+                        
+                            <ul>
+                                - `type`, with value "eulaw".
+                                - `evidence`, with value `"https://eur-lex.europa.eu/eli/reg/2014/910/oj"`.
+
+                        - When the Mandator is a natural person who is the Mandatee in another LEARCredential. The `powerSource` claim is an object with the following fields:
+
+                            <ul>
+                                - `type`, with value "LEARCredential".
+                                - `format`, with the value "jwt_vc_json".
+                                - `evidence`, with the LEARCredential where the Mandator is a Mandatee, in `jwt_vc_json` format.
+
+                        - When the Mandator is a legal representative of the company, but does not have an eIDAS certificate of representation, the Mandator can not sign the LEARCredential. In this case, there must be a trusted third-party which attests that the Mandator is effectively a legal representative of the company. This trusted third-party must perform the required due diligence to confirm the relationship, and then sign the credential with its eIDAS certificate.
+
+                            In DOME, one of the trusted third-parties (trusted by DOME) is the DOME Operator itself, where the employees dedicated to the onboarding of participants perform the manual checks on the documentation provided by the Mandator/Mandatee, and then create and sign the LEARCredential.
+
+                            In this case, the `powerSource` claim is an object with the following fields:
+                        
+                            <ul>
+                                - `type`, with value "attestation".
+                                - `evidence`, with value the eIDAS certificate of the attester.
+
+                            In this case, the `mandate` object must contain an additional object called `attester`, identifying the entity that makes the attestation and with the same fields as the `mandator` object in the case where the Mandator signs the LEARCredential with an eIDAS certificate.
+
+
+                - `tmf_type`: The type of power, which can be:
+                    <ul>
+                        - "Domain": The mandatee has access to the services (subject to the restrictions defined by `action` and `function`) provided by one or more organisations where the services have been classified as belonging to that domain. The classification of services is arbitrary and defined by the service providers. A typical scenario is when some service providers agree on a classification of the services that they provide in the context of an ecosystem (like DOME), and the possible domains are made public, including the mapping to a given set of services in each provider.
+                            
+                        - "Organization": The mandatee has access only to the services provided by one or more organizations, listed specifically in the power.
+
+                - `tmf_domain`: Required when the `tmf_claim` has the value "Domain" or "Organization". It is an array with the names of the Domains or Organisations where the Mandatee is authorised to interact with this Mandate.
+
+                    The names must be unique (e.g. via a namespace) to avoid potential clashes in different ecosystems.
+                            
+                    In DOME, for the powers of onboarding in DOME and for creating a `ProductOffering`, the `tmf_domain` claim must be an array with a single item "DOME".
+
+                - `tmf_function`: A string specifying the name of the function that the Mandatee can perform. The definition of the possible functions is done by the Verifier (the entity with which the Mandatee will interact with the LEAR Credential).
+                
+                    In DOME, the possible funcions are "Onboarding" and "ProductOffering", which enables the Mandatee to use the services provided by DOME to onboard organisations in the ecosystem and (if it is onboarded previously) to create a ProductOffering.
+
+                - `tmf_action`: An array with the concrete actions belonging to the function that the Mandatee is allowed to execute.
+                
+                    In DOME, the possible actions are
+                    
+                    <ul>
+                        - "Execute" when `tmf_function` is "Onboarding".
+                        - Any combination of "Create", "Update" and "Delete" when `tmf_function` is "ProductOffering".
+
+    <section>Additional details: RPaM Ontology
 
         <section>Mandate
 
@@ -2773,105 +2971,6 @@ localBiblioFile: "localbiblio.yaml"
                 - Two frequent situations are 1) when multiple organisations use one shared system, and 2) the opposite, when one organisation uses multiple systems. In both cases, but specially in the second one, it is important to identify well to what organisation the system belongs and who is using it. One common way of identifying uniquely the system and checking its rights to interoperate is to register its IP address or a persistent URL, i.e. the system end-point. The combinations of end-point, additional system identifiers, ownership (property "belongsTo"), and the identification(s) of the owner allow to identify who is actually using it and what for. See the diagram Mandate Request and Mandate Response for other examples regarding Service Providers and Mandate Management Systems.
 
                 - The classes like ubl:Contact, ubl:PostalAddress, org:Site, etc., can be used when there is the need of getting in touch with any of the agents, e.g. in the case notifications from the Service Provider to the `Mandator` and Mandatee could be relevant.
-
-
-    <section>Mapping to `jwt_vc_json` (VC Signed as a JWT, Not Using JSON-LD)
-
-        We now describe the mapping of the conceptual model into the concrete representation of a Mandate in a LEAR Credential.
-
-        The `Mandate` is represented in the LEAR Credential as an object inside the `credentialSubject` object. An example of such object is the following:
-
-        <x-code .json>
-            "mandate": {
-                "id": "bb1482e1-0513-4c90-9c80-98a2e4d14984",
-                "mandator": {
-                    "cn": "56565656V Jesus Ruiz",
-                    "serialNumber": "56565656V",
-                    "organizationIdentifier": "VATES-12345678",
-                    "o": "GoodAir",
-                    "c": "ES"
-                },
-                "mandatee": {
-                    "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-                    "title": "Mr.",
-                    "first_name": "John",
-                    "last_name": "Doe",
-                    "gender": "M",
-                    "email": "johndoe@goodair.com",
-                    "mobile_phone": "+34787426623"
-                },
-                "power": [
-                    {
-                        "id": "53493323798",
-                        "powerSource": "https://eur-lex.europa.eu/eli/reg/2014/910/oj",
-                        "tmf_type": "Domain",
-                        "tmf_name": ["DOME"],
-                        "tmf_function": "Onboarding",
-                        "tmf_action": ["Process"]
-                    }
-                ],
-                "lifeSpan": {
-                    "startDateTime": "2023-10-01",
-                    "endDateTime": "2025-10-01"
-                }
-            }
-
-
-        In the above example, we have specified that the `mandator` (the legal representative of the company) has delegated to the `mandatee` (the employee who will be the owner of the LEAR Credential) one single power to access services in the DOME ecosystem (specified with the fields `tmf_type` and `tmf_name`) with the specific capability to perform the onboarding of the company in the DOME ecosystem (specified with the fields `tmf_function`and `tmf_action`). The actual data model, which can be used to express mor complex delegations is described below in more detail.
-
-        The `Mandate` has an `id` field which is used to uniquely identify the Mandate and that can be used to revoke the Mandate if needed. To maintain privacy, the `id` field should not have any relationship with the rest of the data in the Mandate.
-
-        <section>Mandator
-
-            The object `mandator` identifies the employee of the company acting as Mandator and delegating a subset of his powers on the Mandatee. In the example, the Mandator is the legal representative of the company and is identified with a subset of the fields in the `subject`object in the eIDAS certificate that will be used to sign the LEAR Credential. The minimum set of fields are the ones in the example.
-
-        <section>Mandatee
-
-            The object `mandatee` identifies the employee on whom a subset of powers is delegated. In the example, the employee is identified by:
-
-            <ul>
-                - The `id` field containing a `did:key` where the employee controls the private key associated to the `did:key`. This is required to enable the LEAR Credential to be used as an authentication mechanism. More details in section <x-ref "binding-id-holder">.
-                - A set of attributes which are required by the specific use case where the LEAR Credential will be used. Those attributes can be considered equivalent to the fields that would be filled in a form when a "classical" PDF document would be used to authorise an employee.
-
-        <section>Power
-
-            This object is an array where each element is a power that is delegated from the Mandator to the Mandatee. The fields of each power object are:
-
-            <x-dl>
-                <x-dt>id
-                    The identifier of the power. It must be unique in the context of the Credential where it is included.
-
-                <x-dt>powerSource
-                    The <a href="https://eur-lex.europa.eu/content/help/eurlex-content/eli.html">European Legislation Identifier (ELI)</a> for the source of the power that is being delegated. The Mandator is granted with that power and the Mandator empowers the mandatee with that power.
-
-                <x-dt>tmf_type
-                    The type of power, which can be:
-                    <x-dl>
-
-                        <x-dt>"domain"
-                            The mandatee has access to the services (subject to the restrictions defined by `action` and `function`) provided by one or more organisations where the services have been classified as belonging to that domain. The classification of services is arbitrary and defined by the service providers. A typical scenario is when some service providers agree on a classification of the services that they provide in the context of an ecosystem (like DOME), and the possible domains are made public, including the mapping to a given set of services in each provider.
-                            
-                            The name of the domain must be unique via namespace to avoid potential clashes in different ecosystems.
-                            
-                            The domain name used in DOME is "DOME-Marketplace".
-
-                        <x-dt>"organization"
-                            The mandatee has access only to the services provided by one or more organizations, listed specifically in the power.
-
-                <x-dt>tmf_name
-                    An array with the names of the Domains or Organisations where the Mandatee is authorised to interact with this Mandate.
-
-                <x-dt>tmf_function
-                    A string specifying the name of the function that the Mandatee can perform. The definition of the possible functions is done by the Verifier (the entity with which the Mandatee will interact with the LEAR Credential). In the example, the funcion is "Onboarding", which enables the Mandatee to use the services provided by DOME to onboard organisations in the ecosystem.
-
-                <x-dt>tmf_action
-                    An array with the concrete actions belonging to the function that the Mandatee is allowed to execute. In the example, the Mandatee is allowed to perform the Onboarding process offered by DOME. The concrete set of actions in a given use case is specific to the use case. 
-
-        <section>lifeSpan
-
-            The period of time (start and end) when the Mandate is active. Both fields ("startDateTime" and "endDateTime") are optionel.
-        
-
 
 
 <section .appendix #participants>Example scenario: Participants in the ecosystem
