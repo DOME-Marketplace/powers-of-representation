@@ -50,9 +50,9 @@
     date: "28 January 2022"
     href: "https://openid.bitbucket.io/connect/openid-connect-self-issued-v2-1_0.html"
 "OpenID.VP":
-    title: "OpenID for Verifiable Presentations"
-    date: "21 April 2023"
-    href: "https://openid.net/specs/openid-4-verifiable-presentations-1_0.html"
+    title: "OpenID for Verifiable Presentations - draft 20"
+    date: "29 November 2023"
+    href: "https://openid.net/specs/openid-4-verifiable-presentations-1_0-20.html"
 "RFC6749":
     title: "The OAuth 2.0 Authorization Framework"
     href: "https://www.rfc-editor.org/rfc/rfc6749.html"

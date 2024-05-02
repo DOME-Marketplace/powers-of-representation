@@ -1901,17 +1901,17 @@ localBiblioFile: "localbiblio.yaml"
 
                 -(response_type) (REQUIRED). Must be `vp_token`. This parameter is defined in [[RFC6749]]. The possible values are determined by the response type registry established by [[RFC6749]]. The [[OpenID.VP]] specification introduces the response type `vp_token`. This response type asks the Wallet to return only a VP Token in the Authorization Response, which is what we want in our case.
 
-                -(scope) (REQUIRED). This parameter is defined in [[RFC6749]] which allows it to be used by verifiers to request presentation of credentials by utilizing a pre-defined scope value designating the type of credential. See section <x-ref "request_scope"> for more details. We use in this instance the value `dome.credentials.presentation.LEARCredential` which means that the RP (DOME onboarding service) is asking the SIOP (user wallet) to send a credential of type `LEARCredential`.
+                -(scope) (REQUIRED). This parameter is defined in [[RFC6749]] which allows it to be used by verifiers to request presentation of credentials by utilizing a pre-defined scope value designating the type of credential. See section <x-ref "request_scope"> for more details. We use in this instance the value `dome.credentials.presentation.LEARCredentialEmployee` which means that the RP (DOME onboarding service) is asking the SIOP (user wallet) to send a credential of type `LEARCredentialEmployee`.
 
-                -(response_mode) REQUIRED. MUST be `direct_post`. As this is a cross-device scenario, this response mode is used to instruct the Self-Issued OP to deliver the result of the authentication process to a certain endpoint using the HTTP POST method. This endpoint to which the SIOP shall deliver the authentication result is conveyed in the parameter `redirect_uri` described below.
+                -(response_mode) REQUIRED. MUST be `direct_post`. As this is a cross-device scenario, this response mode is used to instruct the Self-Issued OP to deliver the result of the authentication process to a certain endpoint using the HTTP POST method. This endpoint to which the SIOP shall deliver the authentication result is conveyed in the parameter `response_uri` described below.
 
-                -(redirect_uri) (REQUIRED). MUST be a valid RP endpoint. The Authentication Response is sent to this endpoint using `POST` and encoding `application/json`).
+                -(response_uri) (REQUIRED). The Response URI to which the Wallet MUST send the Authorization Response using an HTTPS POST request as defined by the Response Mode direct_post. The Response URI receives all Authorization Response parameters as defined by the `vp_token` Response Type.
 
                 -(client_id) REQUIRED. MUST be the DID of the RP (DOM onboarding entity) so it can be resolved by the SIOP and checked against a Trusted List, or rejected if it does not pass validation. This provides a high level of assurance to the SIOP that the RP is really who it claims.
 
                 -(client_id_scheme) REQUIRED. MUST have the value `did`. This value indicates that the Client Identifier is a DID defined in [[DID-Core]]. The request MUST be signed with a private key associated with the DID. To obtain the corresponding private key, the Wallet MUST use DID Resolution defined by the DID method used by the Verifier. For most DID methods and since the associated DID Document may include multiple public keys, a particular public key used to sign the request in question MUST be identified by the kid in the JOSE Header. However, in our case the Verifier uses `did:elsi` and so the request MUST be signed with the eIDAS certificate according to the [[JAdES]] format, which defines the mechanism to identify the public key.
                 
-                    All Verifier metadata other than the public key MUST be obtained from the client_metadata or the `client_metadata_uri parameter` as defined in Section 5 of [[OpenID.VP]].
+                    All Verifier metadata other than the public key MUST be obtained from the `client_metadata` or the `client_metadata_uri` parameter as defined in Section 5 of [[OpenID.VP]].
 
                 -(nonce) REQUIRED. This parameter follows the definition given in [[OpenID.Core]]. It is used to securely bind the verifiable presentation(s) provided by the wallet (SIOP) to the particular transaction managed by the RP.
 
@@ -1928,11 +1928,11 @@ localBiblioFile: "localbiblio.yaml"
 
             <x-code .ini>
                 openid://?
-                scope=dome.credentials.presentation.LEARCredential&
+                scope=dome.credentials.presentation.LEARCredentialEmployee&
                 response_type=vp_token&
                 response_mode=direct_post&
                 client_id=did:elsi:VATFR-99999999&
-                redirect_uri=https://verifier.dome-marketplace.eu/api/authentication_response&
+                response_uri=https://verifier.dome-marketplace.eu/api/authentication_response&
                 state=af0ifjsldkj&
                 nonce=n-0S6_WzA2Mj
 
@@ -1946,7 +1946,7 @@ localBiblioFile: "localbiblio.yaml"
                 {
                     "iss": "did:elsi:VATFR-99999999",   // Should correspond with the client_id in the AR
                     "sub": "did:elsi:VATFR-99999999",   // Should correspond with the client_id in the AR
-                    "aud": "https://self-issued.me/v2", // As specified in section 5.5 of OIDC4VP
+                    "aud": "https://self-issued.me/v2", // As specified in section 5.6 of OIDC4VP
                     "iat": 1667194901,
                     "exp": 1667194961,                  // To avoid replays, here it expires in 60 secs
                     "auth_request": "openid://?scope=...&amp;response_type=vp_token&amp;...",
@@ -1993,7 +1993,7 @@ localBiblioFile: "localbiblio.yaml"
 
         <section>Creating and sending the Authorization Response 
 
-            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `redirect_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
+            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
 
             <x-diagram .plantuml>Starting the authentication phase
                 box "Company" #WhiteSmoke
@@ -2015,7 +2015,7 @@ localBiblioFile: "localbiblio.yaml"
                 mobile -> mobile: **(12)** Verification of the trusted nature of the RP
 
                 mobile -> mobile: **(13)** Create Authorization Response
-                # -(13) The wallet creates an Authorization Response to be posted in the `redirect_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
+                # -(13) The wallet creates an Authorization Response to be posted in the `response_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
 
                     The response is constructed as defined in section 6.1 of [[OpenID.VP]]. In particular, because the Authorization Request included only `vp_token` as the `response_type`, the VP Token is provided directly in the Authorization Response and a separate `id_token` is not needed.
 
@@ -2047,7 +2047,7 @@ localBiblioFile: "localbiblio.yaml"
                     Which complies with [[DIF.PresentationExchange]] and refers to the Verifiable Presentation in the `vp_token` parameter provided in the same response. In our example, the Verifiable Presentation includes the LEARCredential that was described in the previous sections.
 
                 mobile -> verifier ++: **(14)** POST /api/siop/authorization_response
-                # -(14) The wallet sends the Authorization Response to the endpoint received in the `redirect_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
+                # -(14) The wallet sends the Authorization Response to the endpoint received in the `response_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
 
                     <x-code .http>
                         POST /api/siop/authorization_response HTTP/1.1
@@ -2216,8 +2216,7 @@ localBiblioFile: "localbiblio.yaml"
 
             In order to authenticate, the Wallet sends a `POST` request to a given endpoint specialised in M2M authentication. The contents of this POST request is very similar to the contents of the Authorization Response in the case of H2M flows. There are several reasons for having separate authentication endpoints for machines and humans, the most important being of legal responsibility nature: natural persons are completely different entities from the point of view of the legal system in the EU (for example, with specific laws like GDPR or Consumer Rights Directive). Having separate authentication endpoints helps reduce the risk of affecting natural persons when modifying the authentication of machines.
 
-            The
-            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `redirect_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
+            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
 
             <x-diagram .plantuml>Starting the authentication phase
                 box "Company" #WhiteSmoke
@@ -2239,7 +2238,7 @@ localBiblioFile: "localbiblio.yaml"
                 mobile -> mobile: **(12)** Verification of the trusted nature of the RP
 
                 mobile -> mobile: **(13)** Create Authorization Response
-                # -(13) The wallet creates an Authorization Response to be posted in the `redirect_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
+                # -(13) The wallet creates an Authorization Response to be posted in the `response_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
 
                     The response is constructed as defined in section 6.1 of [[OpenID.VP]]. In particular, because the Authorization Request included only `vp_token` as the `response_type`, the VP Token is provided directly in the Authorization Response and a separate `id_token` is not needed.
 
@@ -2271,7 +2270,7 @@ localBiblioFile: "localbiblio.yaml"
                     Which complies with [[DIF.PresentationExchange]] and refers to the Verifiable Presentation in the `vp_token` parameter provided in the same response. In our example, the Verifiable Presentation includes the LEARCredential that was described in the previous sections.
 
                 mobile -> verifier ++: **(14)** POST /api/siop/authorization_response
-                # -(14) The wallet sends the Authorization Response to the endpoint received in the `redirect_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
+                # -(14) The wallet sends the Authorization Response to the endpoint received in the `response_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
 
                     <x-code .http>
                         POST /api/siop/authorization_response HTTP/1.1
