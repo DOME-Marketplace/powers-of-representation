@@ -66,6 +66,206 @@ localBiblioFile: "localbiblio.yaml"
 
     In DOME the main mechanism to provide those documents is to submit them in the form of Verifiable Credentials since this makes the process much easier and reduces manual work and possible error: the DOME Operator can check if the corresponding credentials have been signed by trusted issuers.
 
+<section>Overview of the onboarding processes
+
+    The main onboarding process in DOME is based on eIDAS digital certificates and advanced or qualified signatures (<a href="https://eur-lex.europa.eu/legal-content/en/TXT/?uri=CELEX%3A32014R0910">Regulation EU No 910/2014</a>), which
+
+    <blockquote>
+        “... seek to enhance trust in electronic transactions in the internal market by providing a common foundation for secure electronic interaction between citizens, businesses and public authorities, thereby increasing the effectiveness of public and private online services, electronic business and electronic commerce in the Union.”
+
+    Using electronic signatures facilitates a fully digital and automated cross-border onboarding process, and at the same time provides a reasonable balance between automation, convenience, and level of legal certainty and security.
+
+    However, there are still countries in the EU which are lagging in the widespread use of eIDAS signatures. This is expected to change soon, given the push provided by the introduction of eIDAS2 and thanks to a timely implementation of the European Digital Identity Wallet by the Member States (they will be obliged to issue Digital Identity Wallets within 12 months of the entry into force of the Regulation).
+
+    In the mean time, we provide two mechanisms for onboarding in DOME:
+
+    <ol>
+        - A **digital and automated cross-border onboarding** process based on signatures under the current eIDAS legal framework and aligned at the same time with eIDAS2, which provides a reasonable balance between automation, convenience, and level of legal certainty and security. This is the preferred mechanism.
+        - A **“classical” manual process**, which is more **cumbersome, lengthy, and inconvenient** than the digital one, but is available as an exceptional temporary measure to those companies not yet at the required level of digitalisation in the eIDAS framework and which are not capable of using eIDAS digital signatures. 
+
+
+    The diagram below describes an overview of both processes
+
+    <x-diagram .plantuml>Overview of onboarding processes
+        |Digital process|
+
+        start
+        if (Employee has already a LEARCredential\nissued by an entity trusted by DOME?) then (yes)
+
+        else (no)
+
+
+            if (Legal Representative has eIDAS certificate?) then (yes)
+
+                partition Issuance of LEARCredential {
+                    :Legal representative
+                    enters in the DOME Issuer portal
+                    [[https://dome.mycredential.eu]] and creates
+                    a Credential Offer for a LEARCredential;
+
+                    :The employee receives an email notification,
+                    enters in the DOME Issuer portal and
+                    accepts the Credential Offer;
+
+                    :The legal representative receives
+                    a notification and signs the LEARCredential
+                    with her eIDAS certificate;
+
+                    :Employee receives notification and
+                    loads LEARCredential into her Wallet;
+
+                }
+
+            else (no)
+
+                |Manual process|
+
+                :Legal representative creates a
+                PDF document with a handwritten signature.
+                The document includes the identification of
+                the employee and specifies that the employee
+                has the power to perform Onboarding in DOME;
+
+                :Legal representative provides to the employee
+                an authentic document with the Powers of Attorney
+                proving that the signer of the previous authorisation
+                document is a legal representative of the company;
+
+                :The employee presents the documents to the
+                DOME Onboarding service, to prove that she has
+                the power to act on behalf of the company for the
+                purpose of onboarding in DOME;
+
+                :The DOME Operator employees have to verify manually:
+                * Verify that the document with the Powers of Attorney
+                is authentic (probably checking in the business registry
+                of the country of incorporation of the company).
+                * Verify that the signature in the authorisation document
+                corresponds to the legal representative (eg. is not a 
+                picture copied from another document).
+                This is very difficult, unless the legal representative 
+                is contacted directly by the DOME employee.
+                * Verify that the authorisation document is authentic 
+                (has not been tampered with since it was signed by the 
+                legal representative).
+                This is very difficult, because an unsigned PDF can be 
+                modified easily.
+                * Verify that the powers inside the document are the ones 
+                required to perform onboarding in DOME.
+                * Verify that the person trying to onboard is the same 
+                identified in the authorisation document. The DOME employee 
+                has to request the national identity document of the employee 
+                and check against the authorisation document.;
+
+                partition Issuance of LEARCredential {
+
+                    :The DOME Operator employee creates a Credential Offer 
+                    for a LEARCredential;
+
+                    :The employee receives an email notification,
+                    enters in the DOME Issuer portal and
+                    accepts the Credential Offer;
+
+                    :The DOME Operator employee receives
+                    a notification and signs the LEARCredential
+                    with her eIDAS certificate;
+
+                    :Employee receives notification and
+                    loads LEARCredential into her Wallet;
+                }
+
+            endif
+
+        endif
+
+        |Digital process|
+
+        partition Actual onboarding {
+            :Employee goes to DOME Marketplace portal
+            [[https://dome-marketplace.org]];
+
+            :Employee logs into portal with her LEARCredential;
+
+            :DOME Marketplace performs automatic verifications
+            and registers the company as onboarded;
+
+        }
+
+        stop
+
+
+
+
+
+
+    <section>Digital onboarding process
+
+        The objective of the onboarding process is to identify and register a legal entity as a new participant. However, the process is initiated and driven by a natural person, acting on behalf of the company.
+
+        To provide high legal certainty and high security, the onboarding process requires that the natural person driving the process should be either a legal representative of the participant or a natural person that has been delegated by a legal representative at least the powers required to perform the onboarding process on behalf of the legal entity.
+
+        With that in mind, the overall process is the following:
+
+        <table .w3-table-all>
+            <tr>
+                <th>Task
+                <th>Mechanism
+            <tr>
+                <td>A Legal Representative of the company authorises an employee to perform the process of onboarding
+                <td>The legal representative digitally signs a document including the identification of the employee and describing the specific powers that the employee has: onboarding in DOME
+            <tr>
+                <td>The authorised employee starts the onboarding process in the DOME portal
+                <td>The employee presents the document with the authorisation, to prove that she has the power to act on behalf of the company for the purpose of onboarding in DOME
+            <tr>
+                <td>DOME verifies that the employee has the power to act on behalf of the company for the purpose of onboarding
+                <td>Verification is automatic for:
+                    <ul>
+                        - Identity of the legal entity (company)
+                        - Identity of the legal representative
+                        - The powers that the employee has, delegated by the legal representative
+
+                    In addition, the document is authentic and can not be repudiated.
+            <tr>
+                <td>The employee completes the onboarding process in the DOME portal
+                <td>Filling forms in the DOME portal and uploading required additional documents
+
+
+        When using digital signatures and the authorisation document is machine-readable, the above process does not require the intervention of any employee of DOME.
+
+    <section>Manual process
+
+        As in the digital case, we also require that the natural person driving the onboarding process should be either a legal representative of the participant or a natural person that has been delegated by a legal representative at least the powers required to perform the onboarding process on behalf of the legal entity.
+
+        Without digital signatures, the process is the following:
+
+        <table .w3-table-all>
+            <tr>
+                <th>Task
+                <th>Mechanism
+            <tr>
+                <td>A Legal Representative of the company authorises an employee to perform the process of onboarding
+                <td>The legal representative puts a handwritten signature in a document including the identification of the employee and describing the specific powers that the employee has: onboarding in DOME.
+            
+                    In addition, the legal representative provides to the employee an authentic document with the Powers of Attorney proving that the signer of the previous authorisation document is a legal representative of the company.
+            <tr>
+                <td>The authorised employee starts the onboarding process in the DOME portal
+                <td>The employee presents the document with the authorisation, to prove that she has the power to act on behalf of the company for the purpose of onboarding in DOME
+            <tr>
+                <td>DOME verifies that the employee has the power to act on behalf of the company for the purpose of onboarding
+                <td>Verifications are manual: some employee of DOME has to perform, in a trusted manner, the following:
+                    <ol>
+                        - Verify that the document with the Powers of Attorney is authentic (probably checking in the business registry of the country of incorporation of the company).
+                        - Verify that the signature in the authorisation document corresponds to the legal representative (eg. is not a picture copied from another document). This is very difficult, unless the legal representative is contacted directly by the DOME employee.
+                        - Verify that the authorisation document is authentic (has not been tampered with since it was signed by the legal representative). This is very difficult, because an unsigned PDF can be modified easily.
+                        - Verify that the powers inside the document are the ones required to perform onboarding in DOME.
+                        - Verify that the person trying to onboard is the same identified in the authorisation document. The DOME employee has to request the national identity document of the employee and check against the authorisation document.
+                    
+                    Once verifications are done, the DOME employee has to enable access to the DOME onboarding portal to the company employee.
+            <tr>
+                <td>The employee completes the onboarding process in the DOME portal
+                <td>Filling forms in the DOME portal and uploading required additional documents
+
+
 <section>The LEAR Credential as Powers of Representation
 
     The LEARCredential is a machine-readable document representing a Mandate or Powers of Representation. The format used in DOME is a Verifiable Credential using an eIDAS signature to bind the mandate data with the real-world identity of the issuer of the credential.
@@ -95,6 +295,9 @@ localBiblioFile: "localbiblio.yaml"
                 <ul>
                     - a legal representative of the company, according to the official records associated to the incorporation of the organisation (e.g., the business registry of the country of incorporation); or
                     - an employee who is a `mandatee` in another `mandate` where the `mandator` is a legal representative of the company. We do not support more than two levels of delegation.
+                
+                In DOME, the Onboarding process requires that the `mandator` is the legal representative of the company, to ensure an appropriate level of legal certainty.
+                Other processes (after onboarding is completed), like creating a ProductOffering, can use any of the above options for the `mandator`, subject to the limitation of a maximum of two levels of delegation.
 
             <div .xcard>
                 <header>**mandatee**
@@ -105,7 +308,7 @@ localBiblioFile: "localbiblio.yaml"
 
                 <ul>
                     - A set of attributes of the employee which are required by the specific use case where the LEAR Credential will be used, for example to onboard in the DOME ecosystem and for creating a ProductOffering in the marketplace. Those attributes can be considered equivalent to the fields that would be filled in a form when a "classical" PDF document would be used to authorise an employee.
-                    - A public key associated to the employee and where the employee is the sole controler of the associated private key. This is required to enable the use of the LEARCredential containing the `mandate` as an efficient, scalable and secure authentication and authorisation mechanism.
+                    - A public key associated to the employee and where the employee is the sole controller of the associated private key. This is required to enable the use of the LEARCredential containing the `mandate` as an efficient, scalable and secure authentication and authorisation mechanism.
                     
                 The private key controlled by the employee is used to prove to Relying parties receiving the LEARCredential that the holder and presenter of the credential is the same person identified in the `mandatee` object.
                 We support two mechanisms for the public key in the `mandatee` object:
@@ -272,76 +475,6 @@ localBiblioFile: "localbiblio.yaml"
                         - "Execute" when `tmf_function` is "Onboarding".
                         - Any combination of "Create", "Update" and "Delete" when `tmf_function` is "ProductOffering".
 
-
-<section>Overview of the onboarding processes
-
-    <section>Digital onboarding process
-
-        The objective of the onboarding process is to identify and register a legal entity as a new participant. However, the process is initiated and driven by a natural person, acting on behalf of the company.
-
-        To provide high legal certainty and high security, the onboarding process requires that the natural person driving the process should be either a legal representative of the participant or a natural person that has been delegated by a legal representative at least the powers required to perform the onboarding process on behalf of the legal entity.
-
-        With that in mind, the overall process is the following:
-
-        <table .w3-table-all>
-            <tr>
-                <th>Task
-                <th>Mechanism
-            <tr>
-                <td>A Legal Representative of the company authorises an employee to perform the process of onboarding
-                <td>The legal representative digitally signs a document including the identification of the employee and describing the specific powers that the employee has: onboarding in DOME
-            <tr>
-                <td>The authorised employee starts the onboarding process in the DOME portal
-                <td>The employee presents the document with the authorisation, to prove that she has the power to act on behalf of the company for the purpose of onboarding in DOME
-            <tr>
-                <td>DOME verifies that the employee has the power to act on behalf of the company for the purpose of onboarding
-                <td>Verification is automatic for:
-                    <ul>
-                        - Identity of the legal entity (company)
-                        - Identity of the legal representative
-                        - The powers that the employee has, delegated by the legal representative
-
-                    In addition, the document is authentic and can not be repudiated.
-            <tr>
-                <td>The employee completes the onboarding process in the DOME portal
-                <td>Filling forms in the DOME portal and uploading required additional documents
-
-
-
-        When using digital signatures and the authorisation document is machine-readable, the above process does not require the intervention of any employee of DOME.
-
-    <section>Manual process
-
-        As in the digital case, we also require that the natural person driving the onboarding process should be either a legal representative of the participant or a natural person that has been delegated by a legal representative at least the powers required to perform the onboarding process on behalf of the legal entity.
-
-        Without digital signatures, the process is the following:
-
-        <table .w3-table-all>
-            <tr>
-                <th>Task
-                <th>Mechanism
-            <tr>
-                <td>A Legal Representative of the company authorises an employee to perform the process of onboarding
-                <td>The legal representative puts a handwritten signature in a document including the identification of the employee and describing the specific powers that the employee has: onboarding in DOME.
-            
-                    In addition, the legal representative provides to the employee an authentic document with the Powers of Attorney proving that the signer of the previous authorisation document is a legal representative of the company.
-            <tr>
-                <td>The authorised employee starts the onboarding process in the DOME portal
-                <td>The employee presents the document with the authorisation, to prove that she has the power to act on behalf of the company for the purpose of onboarding in DOME
-            <tr>
-                <td>DOME verifies that the employee has the power to act on behalf of the company for the purpose of onboarding
-                <td>Verifications are manual: some employee of DOME has to perform, in a trusted manner, the following:
-                    <ol>
-                        - Verify that the document with the Powers of Attorney is authentic (probably checking in the business registry of the country of incorporation of the company).
-                        - Verify that the signature in the authorisation document corresponds to the legal representative (eg. is not a picture copied from another document). This is very difficult, unless the legal representative is contacted directly by the DOME employee.
-                        - Verify that the authorisation document is authentic (has not been tampered with since it was signed by the legal representative). This is very difficult, because an unsigned PDF can be modified easily.
-                        - Verify that the powers inside the document are the ones required to perform onboarding in DOME.
-                        - Verify that the person trying to onboard is the same identified in the authorisation document. The DOME employee has to request the national identity document of the employee and check against the authorisation document.
-                    
-                    Once verifications are done, the DOME employee has to enable access to the DOME onboarding portal to the company employee.
-            <tr>
-                <td>The employee completes the onboarding process in the DOME portal
-                <td>Filling forms in the DOME portal and uploading required additional documents
 
 <section>Issuing the LEAR Credential
 
