@@ -1,7 +1,7 @@
-## Onboarding in DOME with digital Powers of Representation - the LEARCredential
+## Onboarding and Service Certification in DOME (draft 3)
 See current version of the document here:
 
-[Onboarding in DOME with digital Powers of Representation - the LEARCredential](https://dome-marketplace.github.io/powers-of-representation/onboarding.html).
+[Onboarding and Service Certification in DOME](https://dome-marketplace.github.io/powers-of-representation/onboarding.html).
 
 ## Identification and Access Control with Powers of Representation
 
