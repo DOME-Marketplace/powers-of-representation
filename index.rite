@@ -2214,63 +2214,30 @@ localBiblioFile: "localbiblio.yaml"
 
         <section>Exchanging a LEARCredential for an Access Token
 
-            In order to authenticate, the Wallet sends a `POST` request to a given endpoint specialised in M2M authentication. The contents of this POST request is very similar to the contents of the Authorization Response in the case of H2M flows. There are several reasons for having separate authentication endpoints for machines and humans, the most important being of legal responsibility nature: natural persons are completely different entities from the point of view of the legal system in the EU (for example, with specific laws like GDPR or Consumer Rights Directive). Having separate authentication endpoints helps reduce the risk of affecting natural persons when modifying the authentication of machines.
+            In order to authenticate, the Application (acting as Client role in OAuth 2.0) sends a `POST` request to the token endpoint of the Verifier, using the client credentials grant. Technically, the token endpoint for M2M could be the same as the one for M2M, but this profile requires two different token endpoints.
+            
+            There are several reasons for having separate authentication endpoints for machines and humans, the most important being of legal risk nature: natural persons are completely different entities from the point of view of the legal system in the EU (for example, with specific laws like GDPR or Consumer Rights Directive). Having separate authentication endpoints helps reduce the risk of affecting natural persons and when modifying the authentication of machines (e.g., managing personal identifiable information as company data).
 
             Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
 
-            <x-diagram .plantuml>Starting the authentication phase
-                box "Company" #WhiteSmoke
-                    actor "User" as user
-                    participant "Wallet" as mobile
-                    participant "Laptop" as browser
-                end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Portal" as portal
-                    participant "VC Verifier" as verifier
-                end box
+            <x-diagram .plantuml_server>M2M Authentication flow with a LEARCredential
+                participant "Client" as client
+                participant "VC Verifier" as verifier
+                participant "Resource server" as resource
 
-                verifier -> mobile --++: **(9)** Reply with Authorization Request
+                client -> verifier --++: **(1)** Access Token Request with Client Credentials
+                # -(1) The client authenticates with the authorization server and requests an access token from the token endpoint.
 
-                mobile -> mobile: **(10)** Verification of signature of Authorization Request
+                    Since the client authentication is used as the authorization grant, no additional authorization request is needed.
 
-                mobile -> mobile: **(11)** Verification of the identity of the Relying Party
+                verifier -> client --: **(2)** Access Token Response
+                # -(2) The authorization server authenticates the client, and if valid, issues an access token.
 
-                mobile -> mobile: **(12)** Verification of the trusted nature of the RP
+                client -> resource --++: **(3)** Request to Resource Server with Access Token
+                # -(3) The client call the API of the resource server, sending the access token.
 
-                mobile -> mobile: **(13)** Create Authorization Response
-                # -(13) The wallet creates an Authorization Response to be posted in the `response_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
-
-                    The response is constructed as defined in section 6.1 of [[OpenID.VP]]. In particular, because the Authorization Request included only `vp_token` as the `response_type`, the VP Token is provided directly in the Authorization Response and a separate `id_token` is not needed.
-
-                    The contents of the Authorization Response in our specific use case are:
-
-                    <x-code .ini>
-                        presentation_submission=[see definition below]
-                        &vp_token=[see definition below]
-
-                    The content of the `presentation_submission` parameter in the above Authorization Response is:
-
-                    <x-code .json>
-                        {
-                            "definition_id": "OnboardingPresentationDefinition",
-                            "id": "OnboardingPresentationSubmission",
-                            "descriptor_map": [
-                            {
-                                "id": "id_credential",
-                                "path": "$",
-                                "format": "ldp_vp",
-                                "path_nested": {
-                                    "format": "ldp_vc",
-                                    "path": "$.verifiableCredential[0]"
-                                }
-                            }
-                            ]
-                        }
-
-                    Which complies with [[DIF.PresentationExchange]] and refers to the Verifiable Presentation in the `vp_token` parameter provided in the same response. In our example, the Verifiable Presentation includes the LEARCredential that was described in the previous sections.
-
-                mobile -> verifier ++: **(14)** POST /api/siop/authorization_response
-                # -(14) The wallet sends the Authorization Response to the endpoint received in the `response_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
+                resource -> client --: **(4)** Response from Resource Server
+                # -(4) The resource server verifies the access token and if accepted, returns the result to the client.
 
                     <x-code .http>
                         POST /api/siop/authorization_response HTTP/1.1
@@ -2281,7 +2248,11 @@ localBiblioFile: "localbiblio.yaml"
                         &vp_token=[see definition below]
 
 
-        <section>Authenticating the user with the LEARCredential
+        <section>Access Token Request
+
+            The Client MUST is section defines a set of Client Authentication methods that are used by Clients to authenticate to the Authorization Server when using the Token Endpoint. During Client Registration, the RP (Client) MAY register a Client Authentication method. If no method is registered, the default method is client_secret_basic.
+
+
 
             We should remember that inside the LEARCredential the `credentialSubject` object has an `id` field with value `did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK` which is the DID of the user. It was generated during the creation of the LEARCredential, and the Relying Party should trust that the credential was generated in the proper way binding cryptographically the DID with the LEARCredential, as described in a previous section. It is the same trust that should be put in the generation of any other signed document, like a contract or invoice.
 
