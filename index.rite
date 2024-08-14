@@ -2151,66 +2151,125 @@ localBiblioFile: "localbiblio.yaml"
                 # -(21) The portal of the Relying Party refreshes the screen and displays the services available to users, sending the Access Token to the browser of the user. The Access Token will be sent back by the browser to the portal whenever the user tries to access a protected resource of the portal, and so access control can be performed using the data inside the token, in the same way as with any other access token in other authentication mechanisms.
                 
 
-
     <section>Authenticating with Verifiable Credentials, Machine-To-Machine (M2M)
 
-        <section>Overview
+        <section>Introduction
 
-            The M2M flow for authentication shares many things with the flows for H2M authentication. We focus here on the differences.
+            The M2M (machine-to-machine) flow for authentication is much simpler than the one for H2M, because there is no user authentication involved.
+
+            The description here is based on the <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10">OAuth 2.1 IETF draft (12 July 2024)</a>, which among other things takes into account the <a href="https://oauth.net/2/oauth-best-practice/">OAuth 2.0 Security Best Current Practice</a> and consolidates several new RFCs that are relevant for our use case.
+
+            We define here a specific profile to be used in DOME (or any other environment with the same requirements), so we restrict some choices when optionality exists, to provide the security level we need and to enhance interoperability. To simplify the life of the reader, in many cases we will deliberately copy, paste and maybe modify literal text from the relevant RFCs. In any case, the reader is encouraged to read carefully all the related RFCs to understand the wider aspects of the standards and why we made the choices.
+
+            Another difference with the description in the original RFCs is that we use examples taken from DOME, and even in the descriptions we use the names of the actual components in DOME and its use cases, to make the description much less abstract and so understandable for implementers in DOME and similar use cases.
+
+            For example, we describe in detail how the LEARCredential is used in the flows to enable authentication and authorization to be connected to the legal framework and provide a high level of legal certainty. Because we use the LEARCredential, the concrete legal framework is eIDAS, but the implementation can be generalised to other legal frameworks in other regions of the world.
             
-            In this description we assume that the user is an application or service running in a server operated by a legal person, and the application wants to access a protected resource in an automated way. This is also applicable when the application or service is running in a constrained device like a sensor. Without loss of generality, we will use the term `application` interchangeably with `user` when the context is clear.
+            In this description we assume that there is an application or service running in a server operated by a legal person, and the application wants to access a protected resource in an automated way. 
 
-            We assume, like in the H2M case, that the legal entity operating the application issues a LEARCredential to the application, and that the application uses a so-called `enterprise wallet` to store and manage Verifiable Credentials and their associated private keys.
+            We assume, like in the H2M case, that the legal entity operating the application issues a LEARCredential to the application. The application will use the LEARCredential in a M2M flow to authenticate to the other party.
 
-            <x-img @images/login_in_DOME/authn_architecture_numbered.drawio.png>Architecture overview 
+            <section>Roles
 
-            The high level flow is the following:
+                We use the same roles as in OAuth:
 
-            <ul .plain>
+                - **"resource owner"**: An entity capable of granting access to a protected resource. In the M2M flow this is the same as the "client" below. This is sometimes abbreviated as "RO".
 
-                -(1) The application sends a request to access a protected resource managed by the Relying Party.
+                - **"resource server"**: The server hosting the protected resources, capable of accepting and responding to protected resource requests using access tokens. The resource server is accessible via an API called by the "client". This is sometimes abbreviated as "RS".
+
+                - **"client"**: An application making protected resource requests on behalf of the resource owner and with its authorization. As mentioned above, in the M2M flow the "client" and the "resource owner" are the same and they are a machine.
+
+                - **"authorization server"**: The server issuing access tokens to the client after successfully authenticating the client and deriving the authentication. In DOME this is the VCVerifier.
+
+            <section>Protocol Flow
+
+                The abstract flow for the M2M interaction is illustrated in the diagram below:
+
+                <x-diagram .plantuml_server>M2M Authentication flow with a LEARCredential
+                    participant "Client" as client
+                    participant "VC Verifier" as verifier
+                    participant "Resource server" as resource
+
+                    client -> verifier --++: **(1)** Authorization Grant
+                    # -(1) The client requests an access token by authenticating with the authorization server (VCVerifier) and presenting the authorization grant.
+
+                        Since the client authentication is used as the authorization grant, no previous authorization request is needed.
+
+                    verifier -> client --: **(2)** Access Token
+                    # -(2) The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token.
+
+                    group loop [While access token is valid]
+
+                        client -> resource --++: **(3)** Access Token
+                        # -(3) The client requests the protected resource from the resource server and authenticates by presenting the access token.
+
+                        resource -> client --: **(4)** Protected Resource
+                        # -(4) The client requests the protected resource from the resource server and authenticates by presenting the access token.
+
+                    end
+
+            <section>Authorization Grant
+
+                The M2M flow uses the `client credentials` grant.
+
+        <section>Client Registration
+
+            In DOME, clients do not have to be pre-registered before initiating the protocol, because clients use a LEARCredential for authentication. The LEARCredential is used by the VCVerifier to check that the legal entity owning the machine has delegated to the client the powers to access specific protected resources in the DOME ecosystem. The requirement is that the legal entity owning the machine has performed the onboarding process in DOME, so it can issue LEARCredentials to one or more machines that will act as clients in this protocol. More details are given later in this document.
+
+            <section>Client Type
+
+                In the M2M flow, the client type is **"confidential"** (as per the OAuth 2.1 spec), where the application is running on a server and the client credentials as well as any access tokens issued to the client are stored on the server and are not exposed to or accessible publicly.
+
+            <section>Client Identifier
+
+                The client identifier that must be used in the M2M flow is the `did` assigned to the machine when issuing the LEARCredential. See how to issue LEARCredential for more details. The client identifier (the did of the machine) is inside the LEARCredential, so it is cryptographically bound to the rest of the information in the LEARCredential.
+
+            <section>Client Redirection Endpoint
+
+                The M2M flow does not use client redirection.
+
+            <section>Client Authentication
+
+                The M2M flow MUST use the Private Key JWT [RFC7523] authentication method as defined in the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">"OAuth Token Endpoint Authentication Methods"</a> registry. The LEARCredential, which is a JWT, is used in authentication, as described below.
+
+        <section>Protocol Endpoints
+
+            The M2M authorization process utilizes only one VCVerifier endpoint, the `Token endpoint`, which is used by the client to exchange an authorization grant (the LEARCredential) for an access token.
+
+            There are no client endpoints.
+
+            The client MUST use the HTTP POST method when making requests to the token endpoint.
+
+            The VCVerifier MUST ignore unrecognized request parameters sent to the token endpoint.
+
+            <section>Token Request
+
+                The client makes a request to the token endpoint by sending the following parameters using the application/x-www-form-urlencoded format per <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10#application-x-www-form-urlencoded">Appendix B of OAuth 2.1</a> with a character encoding of UTF-8 in the HTTP request content:
+
+                - **"grant_type"**: REQUIRED. The value MUST be `client_credentials`.
                 
-                -(2) Every request to a protected resource is intercepted by the PEP (Policy Enforcement Point). The PEP is normally implemented as a reverse proxy or API gateway, so all calls to protected resources entering the organisation are intercepted and forwarded only if they are accepted. If the request does not come with authentication information, there are several high level scenarios which are possible:
+                The VCVerifier MUST support this grant type and enforce it when specified by the client.
 
-                    <ul>
-                        - If the user is a machine using an API, the request is rejected with an error. The caller is responsible for authenticating before retrying, which can be done using the metadata about the Relying Party available at the standard OpenID endpoints.
+            <section>Token Response
 
-                        - If the user is a natural person using a browser for navigating the portal of the Relying Party, the typical approach is to redirect the browser to the authentication component using an HTTP Status of 302. The redirection includes enough information so the authentication component can send back the user to the original request if the user completes authentication successfully.
-                        
-                    Alternatively, the request can include authentication information which has been obtained before via an authentication process. If this is the case, the PEP goes directly into the authentication phase, described later in section <x-ref "accesscontrol">.
+                If the access token request is valid and authorized, the VCVerifier issues an access token. Refresh tokens are not supported by the VCVerifier.
 
-                -(3) The user is redirected to the authentication component. As mentioned before, alternatively the authorization component can be accessed directly by the user before trying to access the protected resource. This would be the expected behaviour of a user who knows that authentication is required. The mechanism described here supports all possible scenarios both for natural persons and machines.
+                If the request client authentication failed or is invalid, the VCVerifier returns an error response as described in <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10#section-3.2.4">Section 3.2.4 Error Response</a> of the OAuth 2.1 spec.
 
-                    An example flow with a natural person would be: The user navigates first to a general Login page in the portal of the Relying Party and authenticates. After authentication the portal presents a collection of services that the user can access. The user selects one of the services/operations and the Relying Party executes the operation if the user is authorised to do so.
+                The VCVerifier issues an access token by creating an HTTP response content using the application/json media type as defined by [RFC8259] with the following parameters and an HTTP 200 (OK) status code:
 
-                -(4) The Verifiable Credentials verifier component of the Relying Party retrieves the credentials that are required for authentication. If the user has been redirected when trying to access a protected resource, the redirection provides information about the operation and protected resource that was trying to access, so there may be more credentials required than just a VerifiableID.
+                - **"access_token"**: REQUIRED. The access token issued by the VCVerifier.
 
-                    If the user accessed the Login page directly, the VC Verifier component does not have information about the resource that the user intends to access, so it can request just a VerifiableID.
+                - **"token_type"**: REQUIRED. The type of the access token issued as described in Section 1.4 [TODO]. Value is case insensitive.
 
-                -(5) The VC Verifier component of the Relying Party and the Wallet of the user engage in a Verifiable Presentation Exchange flow, where the result is that the VC Verifier receives a VerifiableID and possibly additional Verifiable Credentials as determined in step 4.
+                - **"expires_in"**: REQUIRED. The lifetime in seconds of the access token. Its value MUST be 3600, which denotes that the access token will expire in one hour from the time the response was generated.
 
-                -(6) The authorization mechanism uses the Trust Framework to query different Trusted Lists that are needed to evaluate the policy rules applicable to the request and compute a decision.
+                The authorization server MUST include the HTTP `Cache-Control` response header field (see Section 5.2 of [RFC9111]) with a value of `no-store` in any response containing tokens, credentials, or other sensitive information.
 
-                    The Trust Framework is composed of one or more Trusted Lists where each list is specialised in some specific domain of trust.
 
-                    For example, the Trust Framework contains Trusted Lists with the schema definitions used for the well-known types of Verifiable Credentials in the ecosystem. In this way, if the Verifiable Registry used for the Trust Framework is based on a Blockchain network (or several federated networks), the schemas can be published in a trusted and resilient manner reducing the risk of malicious tampering and keeping a record of the history of modifications.
 
-                    But the most interesting Trusted Lists in the Trust Framework are the Trusted Issuers Lists, which provide the mechanism to efficiently and securely verify that the issuer of a given credential is a Trusted Issuer of that type of credentials.
 
-                    It has to be noticed that even though most Trusted Issuer Lists are global (used by all participants in the ecosystem) and have essentially public information, there may be some specialised lists that are private to one or more organisations and specialised in some specific requirement.
 
-                    In this way, there may be some lists that are specific to the products that one organisation provides to other participants in the ecosystem. For example, there may be a Trusted Issuer List private to one organisation which is updated with the identity of a participant when that participant acquires access to some product provided by that organisation.
-
-                    For example, this "product-specific" Trusted Issuer List is queried when performing authorization if the related policy rules specify that the issuer of the Verifiable Credential received in the request should have acquired the product that the request is trying to access.
-
-                    However, as mentioned before, the set of "internal" and "external" Trusted Lists to query is not hardcoded but it depends on the specific policy rules that should be applied to the request when computing the decision to grant access or not.
-
-                    In this way, the system provides a great deal of flexibility on how access control is performed.
-
-                    For simplicity, the diagram below shows the query of the Trusted Issuer Lists as a single interaction to a single box, but the actual interactions can be very complex if required. In addition, the diagram does not specify whether the list is "private" or "global".
-
-            The following sections elaborate in more detail in each of the interactions.
-            
 
         <section>Exchanging a LEARCredential for an Access Token
 
@@ -2220,32 +2279,23 @@ localBiblioFile: "localbiblio.yaml"
 
             Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
 
-            <x-diagram .plantuml_server>M2M Authentication flow with a LEARCredential
-                participant "Client" as client
-                participant "VC Verifier" as verifier
-                participant "Resource server" as resource
 
-                client -> verifier --++: **(1)** Access Token Request with Client Credentials
-                # -(1) The client authenticates with the authorization server and requests an access token from the token endpoint.
+        <section>Token Endpoint
 
-                    Since the client authentication is used as the authorization grant, no additional authorization request is needed.
+            The token endpoint is used by the client to obtain an access token using the `client credentials` grant.
 
-                verifier -> client --: **(2)** Access Token Response
-                # -(2) The authorization server authenticates the client, and if valid, issues an access token.
+            The default token endpoint is `/token-M2M` but it can be provided in the VCVerifier (authorization server) metadata document ([RFC8414]) and fetched programmatically by clients at runtime.
 
-                client -> resource --++: **(3)** Request to Resource Server with Access Token
-                # -(3) The client call the API of the resource server, sending the access token.
+            The client MUST use the HTTP POST method when making requests to the token endpoint.
 
-                resource -> client --: **(4)** Response from Resource Server
-                # -(4) The resource server verifies the access token and if accepted, returns the result to the client.
+            The VCVerifier MUST ignore unrecognized request parameters sent to the token endpoint.
 
-                    <x-code .http>
-                        POST /api/siop/authorization_response HTTP/1.1
-                        Host: verifier.dome-onboarding.org
-                        Content-Type: application/x-www-form-urlencoded
+            Parameters sent without a value MUST be treated as if they were omitted from the request. Request and response parameters defined by this specification MUST NOT be included more than once.
 
-                        presentation_submission=[see definition below]
-                        &vp_token=[see definition below]
+            
+
+
+
 
 
         <section>Access Token Request

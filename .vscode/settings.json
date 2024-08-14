@@ -1,3 +1,10 @@
 {
-    "emeraldwalk.runonsave": {}
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.rite$",
+                "cmd": "rite ${file}"
+            }
+        ]
+    }
 }
