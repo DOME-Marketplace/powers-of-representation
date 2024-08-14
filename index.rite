@@ -2244,6 +2244,11 @@ localBiblioFile: "localbiblio.yaml"
 
             <section>Token Request
 
+                Technically, the token endpoint for M2M could be the same as the one for M2M, but this profile requires two different token endpoints.
+            
+                There are several reasons for having separate authentication endpoints for machines and humans, the most important being of legal risk nature: natural persons are completely different entities from the point of view of the legal system in the EU (for example, with specific laws like GDPR or Consumer Rights Directive). Having separate authentication endpoints helps reduce the risk of affecting natural persons and when modifying the authentication of machines (e.g., managing personal identifiable information as company data).
+
+
                 The client makes a request to the token endpoint by sending the following parameters using the application/x-www-form-urlencoded format per <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10#application-x-www-form-urlencoded">Appendix B of OAuth 2.1</a> with a character encoding of UTF-8 in the HTTP request content:
 
                 - **"grant_type"**: REQUIRED. The value MUST be `client_credentials`.
@@ -2267,133 +2272,69 @@ localBiblioFile: "localbiblio.yaml"
                 The authorization server MUST include the HTTP `Cache-Control` response header field (see Section 5.2 of [RFC9111]) with a value of `no-store` in any response containing tokens, credentials, or other sensitive information.
 
 
+        <section>Client Credential Grants
 
+            The Client authenticates in accordance with JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants [OAuth.JWT] and Assertion Framework for OAuth 2.0 Client Authentication and Authorization Grants [OAuth.Assertions]. The JWT MUST contain the following REQUIRED Claim Values and MAY contain the following OPTIONAL Claim Values:
 
+                - **iss**: REQUIRED. Issuer. This MUST contain the client_id of the OAuth Client, which is the `did` assigned to the machine in the LEARCredential of the machine.
 
+                - **sub**: REQUIRED. Subject. This MUST contain the same value as the "iss" claim.
+                
+                - **aud**: REQUIRED. Audience. The aud (audience) Claim. Value that identifies the VCVerifier as an intended audience. The client MUST use the VCVerifier's issuer identifier value (as defined in [RFC8414]). The issuer identifier value shall be sent as a string not as an item in an array. The VCVerifier MUST verify that it is an intended audience for the token. The Audience SHOULD be the URL of the VCVerifier's Token Endpoint. 
+                
+                - **jti**: REQUIRED. JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token. These tokens MUST only be used once, unless conditions for reuse were negotiated between the parties; any such negotiation is beyond the scope of this specification. Given the very low value of the expiration time of the JWT in this specification, the cache of already used `jti` claims can be held in memory, because an expired JWT MUST not be accepted even if the `jti` has not been seen before.
+                
+                - **exp**: REQUIRED. Expiration time on or after which the JWT MUST NOT be accepted for processing. In a M2M flow, this JWT is used only once and the client generates the JWT immediately before using it to call the token endpoint of the VCVerifier, with no human intervention or intermediate complex processes. The expiration time MUST be set as low as possible while allowing network delays, the major component that may affect this parameter. For example, 10 seconds, which is more than enough in most situations. In case of bad network conditions, the authentication can be retried with a new JWT. This is important for Replay protection, while simplifying management of unique `jti`claims in VC Verifier.
+                
+                - **iat**: REQUIRED. Time at which the JWT was issued.
 
-        <section>Exchanging a LEARCredential for an Access Token
+            The JWT MAY contain other Claims. Any Claims used that are not understood MUST be ignored.
+            The authentication token MUST be sent as the value of the [OAuth.Assertions] `client_assertion` parameter.
+            The value of the [OAuth.Assertions] `client_assertion_type` parameter MUST be "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", per [OAuth.JWT].
 
-            In order to authenticate, the Application (acting as Client role in OAuth 2.0) sends a `POST` request to the token endpoint of the Verifier, using the client credentials grant. Technically, the token endpoint for M2M could be the same as the one for M2M, but this profile requires two different token endpoints.
-            
-            There are several reasons for having separate authentication endpoints for machines and humans, the most important being of legal risk nature: natural persons are completely different entities from the point of view of the legal system in the EU (for example, with specific laws like GDPR or Consumer Rights Directive). Having separate authentication endpoints helps reduce the risk of affecting natural persons and when modifying the authentication of machines (e.g., managing personal identifiable information as company data).
+            In addition, the JWT MUST contain the following REQUIRED Claim Values:
 
-            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
+                - **vp_token**: REQUIRED. JSON String that MUST contain a single Verifiable Presentation (the array syntax MUST NOT be used, even if the array has only one presentation). The Verifiable Presentation MUST be represented as a JSON string (that is a Base64url encoded value) using the format "jwt_vp_json": the VP is not using JSON-LD and is signed as a JWT. The VP MUST include only one LEARCredential, which will be used for authentication by the VCVerifier. The LEARCredential MUST be included in the VP using the format "jwt_vc_json", that is: VC signed as a JWT, not using JSON-LD.
+                
+                - **presentation_submission**: MUST NOT BE USED. The presentation_submission element as defined in [DIF.PresentationExchange]. It contains mappings between the requested Verifiable Credentials and where to find them within the VP Token. This is expressed via elements in the descriptor_map array, known as Input Descriptor Mapping Objects. At this moment, the vp_token format is completely defined by this profile, and the presentation_submission claim MUST NOT be used, to avoid confusion. In the future, this claim can be used to specify additional formats for the VP token.
 
+                    For ilustrative purposes, an example presentation_submission object corresponding to the VP token defined in this profile would be:
 
-        <section>Token Endpoint
-
-            The token endpoint is used by the client to obtain an access token using the `client credentials` grant.
-
-            The default token endpoint is `/token-M2M` but it can be provided in the VCVerifier (authorization server) metadata document ([RFC8414]) and fetched programmatically by clients at runtime.
-
-            The client MUST use the HTTP POST method when making requests to the token endpoint.
-
-            The VCVerifier MUST ignore unrecognized request parameters sent to the token endpoint.
-
-            Parameters sent without a value MUST be treated as if they were omitted from the request. Request and response parameters defined by this specification MUST NOT be included more than once.
-
-            
-
-
-
-
-
-        <section>Access Token Request
-
-            The Client MUST is section defines a set of Client Authentication methods that are used by Clients to authenticate to the Authorization Server when using the Token Endpoint. During Client Registration, the RP (Client) MAY register a Client Authentication method. If no method is registered, the default method is client_secret_basic.
-
-
-
-            We should remember that inside the LEARCredential the `credentialSubject` object has an `id` field with value `did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK` which is the DID of the user. It was generated during the creation of the LEARCredential, and the Relying Party should trust that the credential was generated in the proper way binding cryptographically the DID with the LEARCredential, as described in a previous section. It is the same trust that should be put in the generation of any other signed document, like a contract or invoice.
-
-            The process of verifying the Authorization Response and authenticating the user with the LEARCredential is the following:
-
-            <x-diagram .plantuml>Starting the authentication phase
-                box "Company" #WhiteSmoke
-                    actor "User" as user
-                    participant "Wallet" as mobile
-                    participant "Laptop" as browser
-                end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Portal" as portal
-                    participant "VC Verifier" as verifier
-                end box
-
-                mobile -> verifier ++: (14) POST /api/siop/authorization_response
-
-                verifier -> verifier: (15 and 16) Verify signature\nand issuer of\nLEARCredential
-                # -(15 and 16) The Verifier receives the Authorization Request and has to perform verifications, the standard ones being defined in [[DIF.PresentationExchange]]. In order to verify that the Verifiable Credential has been issued by a trusted entity, the Relying Party has to verify:
-
-                    <ol>
-                        - That the DID of the entity which is the issuer of the VC is a trusted entity.
-                        - That the VC was signed by that participant.
-
-                    Both verifications can be done by performing DID resolution, checking that the resulting DID Document contains the public key corresponding to the one specified in the Verifiable Credential, and by verifying the digital signature of the credential against that public key.
-
-                    In our case the LEARCredential was issued using the `did:elsi` method, so resolution is very simple and is specified in [[DID-ELSI]].
-
-                verifier -> verifier: (17) Verify sender of the\nAuthorization Response
-                # -(17) After verifying the credential, the Relying Party can also verify that the Verifiable Presentation including the Verifiable Credential is sent by the user and not by a malicious agent. To do so, it uses the public key associated to the `did:key` identifier `id` field inside the `credentialSubject` structure. That public key is cryptographically bound to the customer DID during the onboarding process that GoodAir performed with its employee.
-
-                verifier -> verifier: (18) Generate Access Token
-                # -(18) The Verifier creates an Access Token for the user so it can be used later for access services provided by the Relying Party (in the case of onboarding, those services would be the ones related to the onboarding process implemented by the Onboarding portal). The Access Token is generated in JWT format and signed by the VC Verifier. The access token is intended for use as bearer token over HTTP [[RFC2616]] using Transport Layer Security (TLS) [[RFC5246]] to access protected resources, and it should use the JWT Profile profile described in [[RFC9068]].
-
-                    For our use case, the payload of the JWT access token looks like:
 
                     <x-code .json>
                         {
-                            "iss": "did:elsi:VATFR-99999999",
-                            "sub": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-                            "aud":   "https://dome-marketplace.eu/onboarding",
-                            "exp": 1639528912,
-                            "iat": 1618354090,
-                            "jti" : "dbe39bf3a3ba4238a513f51d6e1691c4",
-                            "client_id": "did:elsi:VATFR-99999999",
-                            "scope": "vp_token",
-                            "verifiableCredential": ["the VC that was received inside the Verifiable Presentation"]
+                            "definition_id": "client_assertion_jwt_vc",
+                            "id": "example_jwt_vc_presentation_submission",
+                            "descriptor_map": [
+                                {
+                                    "id": "id_credential",
+                                    "path": "$",
+                                    "format": "jwt_vp_json",
+                                    "path_nested": {
+                                        "path": "$.vp.verifiableCredential[0]",
+                                        "format": "jwt_vc_json"
+                                    }
+                                }
+                            ]
                         }
 
-                    Where, according to [[RFC9068]]:
 
-                    <ul>
-                        - `iss` and `client_id` have the same value because the access token has been generated by the Verifier component of the DOME onboarding service, acting as the DOME legal person.
+        <section>Example
 
-                        - `sub` identifies the user (employee of GoodAir acting as LEAR of the company) using the DID inside the Verifiable Credential received
+            For example (with line wraps within values for display purposes only):
 
-                        - `aud` identifies the RS (Resource Server) component in Packet Delivery. In this case we assume that it is internal and does not have a DID assigned, so we use the URI of the component.
+            <x-code .http>
+                POST /token_m2m HTTP/1.1
+                Host: verifier.dome-marketplace.org
+                Content-Type: application/x-www-form-urlencoded
 
-                        - `kid` in the header identifies the key that is used to sign the JWT and which must be configured up-front and known by the RS (Resource Server.
+                grant_type=client_credentials&
+                client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
+                client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjIyIn0.
+                eyJpc3Mi[...omitted for brevity...].
+                cC4hiUPo[...omitted for brevity...]
 
-                        - `scope` has the same value as the equivalent `scope` parameter in the initial Authorization Request.
 
-                        - `verifiableCredential` contains the Verifiable Credential that was received, specifically the value of the first element of the field `verifiableCredential` of the Verifiable Presentation.
-
-                verifier -> mobile: (19) HTTP 200 with <access token>
-                # -(19) The Verifier sends a successful response to the POST request from the wallet. The wallet receives the response to the POST indicating the success or failure of the process. The Verifier continues processing because the web portal of Packet Delivery has to be refreshed with the services that this specific user can access, based on the information received in the Verifiable Credential and the access control policies implemented by the DOME portal.
-
-                verifier -> portal --++: (20) Notify with\n<access token> and <state>
-                # -(20) The Verifier notifies the DOME portal to refresh the login page so it can present the services to the user. The notification includes the following:
-
-                    <ul>
-                        - The `state` nonce that was generated by the portal when it generated the QR code. The portal uses the `state` nonce to know what login session is being notified.
-
-                        - The access token generated before.
-
-                    The notification is a simple POST request with both parameters in the body:
-
-                    <x-code .http>
-                        POST /api/notify HTTP/1.1
-                        Host: dome-marketplace.eu
-                        Content-Type: application/x-www-form-urlencoded
-
-                        access_token=[the access token]
-                        &state=af0ifjsldkj
-
-                    The portal component replies immediately and continues processing.
-
-                portal -> browser --: (21) Refresh screen\nwith services and include\n<access token>
-                # -(21) The portal of the Relying Party refreshes the screen and displays the services available to users, sending the Access Token to the browser of the user. The Access Token will be sent back by the browser to the portal whenever the user tries to access a protected resource of the portal, and so access control can be performed using the data inside the token, in the same way as with any other access token in other authentication mechanisms.
-                
 
 
 <section #accesscontrol>Access control with Verifiable Credentials
