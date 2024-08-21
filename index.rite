@@ -703,7 +703,7 @@ localBiblioFile: "localbiblio.yaml"
 
         The following sections provide more details on the flows.          
 
-        <section>Starting the authentication process
+        <section #start_authentication>Starting the authentication process
 
             The user interacts with the web interface of the Application, and at some point the Application wants to authenticate the user so it presents a "Login" button, to authenticate with a Verifiable Credential which in our case will be a LEARCredential issued to the user. This authentication mechanism can coexist with other mechanisms, if the application implementer wants.
             
@@ -729,9 +729,10 @@ localBiblioFile: "localbiblio.yaml"
                     participant "Wallet" as mobile
                     participant "Laptop" as browser
                 end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Application" as portal
-                    participant "VC Verifier" as verifier
+                participant "Application" as portal
+                box "VCVerifier" #23ADD0
+                    participant "Auth\nServer" as authserver #C5F3FE
+                    participant "Relying\nParty" as rp #C5F3FE
                 end box
 
                 group OIDC Auth Request
@@ -740,22 +741,23 @@ localBiblioFile: "localbiblio.yaml"
                     browser -> portal --++: **(2)** Access the portal
 
                     portal -> browser --++: **(3)** HTTP 302 (redirect)
-                    browser -> verifier --++: **(3 cont)** Authentication Request
+                    browser -> authserver --++: **(3 cont)** Authentication Request
+                    authserver -> rp --++:
                 end
 
                 group OID4VP Auth Request
-                    verifier -> verifier: **(4)** Generate QR code
+                    rp -> rp: **(4)** Generate\nQR code
 
-                    verifier -> browser --: **(5)** Display QR code
+                    rp -> browser --: **(5)** Display QR code
 
                     user -> mobile ++: **(6)** Start QR scan
                     browser --> mobile: Scan QR code
 
-                    mobile -> verifier --++: **(7)** GET /auth-request
+                    mobile -> rp --++: **(7)** GET /auth-request
 
-                    verifier -> verifier: **(8)** Create Authorization Request
+                    rp -> rp: **(8)** Create\nAuthorization\nRequest
 
-                    verifier -> mobile --: **(9)** Reply with Authorization Request
+                    rp -> mobile --: **(9)** Reply with Authorization Request
                 end
 
 
@@ -820,17 +822,15 @@ localBiblioFile: "localbiblio.yaml"
 
                 -(7) After confirmation by the user, the wallet performs a `GET /auth-request` to the endpoint that was in the `request_uri` parameter inside the QR code. The reply to the GET request is an Authorization Request
 
-
-                -(8) The VC Verifier creates an Authorization Request. The parameters comprising a request for verifiable presentations are described in detail in the next section
+                -(8) The VC Verifier creates an Authorization Request. The parameters comprising a request for verifiable presentations are described in detail in the section <x-ref "generate-auth-request">
 
                 -(9) The Verifier replies to the wallet with the Authorization Request
 
-
-        <section>Generating the Authorization Request
+        <section #generate-auth-request>VCVerifier generates the Authorization Request
 
             The Authorization Request travels in the response body of the HTTP GET request performed in the previous point, as a JWT signed by the DOME onboarding service, using the eIDAS certificate for seals that corresponds to the legal person operating the service and with the JAdES signature format.
 
-            The parameters comprising a request for verifiable presentations are given in section 5 of [[OpenID.VP]] and in section 10.1 of [[OpenID.SIOP2]] and are reproduced here with the particularities of this use case, in particular taking into account that this is a cross-device interaction:
+            The parameters comprising a request for verifiable presentations are given in section 5 of [[OpenID.VP]] and are reproduced here with the particularities of this use case, in particular taking into account that this is a cross-device interaction:
 
             <ul>
 
@@ -844,12 +844,12 @@ localBiblioFile: "localbiblio.yaml"
 
                 -(client_id) REQUIRED. MUST be the DID of the Relaying Party (DOM Marketplace) so it can be resolved by the Wallet and checked against a Trusted List, or rejected if it does not pass validation. This provides a high level of assurance to the Wallet that the RP is really who it claims.
 
-                -(client_id_scheme) REQUIRED. MUST have the value `did`. This value indicates that the Client Identifier is a DID defined in [[DID-Core]]. The request MUST be signed with a private key associated with the DID. To obtain the corresponding private key, the Wallet MUST use DID Resolution defined by the DID method used by the VCVerifier. For most DID methods and since the associated DID Document may include multiple public keys, a particular public key used to sign the request in question MUST be identified by the kid in the JOSE Header. However, in our case the VCVerifier uses `did:elsi` and so the request MUST be signed with one of the following methods:
+                -(client_id_scheme) REQUIRED. MUST have the value `did`. This value indicates that the Client Identifier is a DID defined in [[DID-Core]]. The request MUST be signed with a private key associated with the DID. To obtain the corresponding private key, the Wallet MUST use DID Resolution defined by the DID method used by the VCVerifier. For most DID methods and since the associated DID Document may include multiple public keys, a particular public key used to sign the request in question MUST be identified by the kid in the JOSE Header. However, in our case the VCVerifier uses `did:elsi` or `did:key` and so the request MUST be signed with one of the following methods:
 
                     <ul>                
-                        - If the VCVerifier controls an eIDAS certificate for seals, the signature MUST use that eIDAS certificate according to the [[JAdES]] format, which defines the mechanism to identify the public key.
+                        - If the VCVerifier controls an eIDAS certificate for seals, the signature MUST use that eIDAS certificate according to the [[JAdES]] format, which defines the mechanism to identify the public key. In this case, the VCVerifier uses the `did:elsi` scheme.
 
-                        - If the VCVerifier has a LEARCredential issued to the application, the signature MUST use the private key corresponding to the public key associated to the did:key identifier inside the LEARCredential.
+                        - If the VCVerifier has a LEARCredential issued to the application, the signature MUST use the private key corresponding to the public key associated to the `did:key` identifier inside the LEARCredential.
                 
                     All Verifier metadata other than the public key MUST be obtained from the `client_metadata` or the `client_metadata_uri` parameter as defined in Section 5 of [[OpenID.VP]].
 
@@ -886,45 +886,44 @@ localBiblioFile: "localbiblio.yaml"
             As mentioned above, the Authentication Request is returned to the wallet in the reply body of the GET request, as a JWT in JWS form [[RFC7515]]), signed with the eIDAS certificate of the DOM onboarding legal person.
 
 
-        <section>Verification of the Authorization Request
-
+        <section>Wallet verifies the Authorization Request
 
             Before sending the Authentication Response, the wallet should verify that the Authorization Request is correct. The most important verifications are described here:
 
-            <x-diagram .plantuml>Starting the authentication phase
+            <x-diagram .plantuml>Verification of the Authorization Request
                 box "Company" #WhiteSmoke
                     actor "User" as user
                     participant "Wallet" as mobile
                     participant "Laptop" as browser
                 end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Portal" as portal
-                    participant "VC Verifier" as verifier
+                participant "Application" as portal
+                box "VCVerifier" #23ADD0
+                    participant "Auth\nServer" as authserver #C5F3FE
+                    participant "Relying\nParty" as rp #C5F3FE
                 end box
 
-
-                verifier -> mobile --++: **(9)** Reply with Authorization Request
+                rp -> mobile --++: **(9)** Reply with Authorization Request
 
                 mobile -> mobile: **(10)** Verification of signature of Authorization Request
-                # -(10) Verification of the signature. As mentioned in the previous section, the Authorization Request is received as a JWT signed by the DOME onboarding service, using the eIDAS certificate for seals that corresponds to the legal person operating the service. This allows the wallet to verify that the signature corresponds to a real-world entity.
+                # -(10) Verification of the signature. As mentioned in the previous section, the Authorization Request is received as a JWT signed by the VCVerifier. This allows the wallet to verify that the signature corresponds to a real-world entity.
 
-                mobile -> mobile: **(11)** Verification of the identity of the Relying Party
-                # -(11) Verification that the DID in the `client_id` field of the Authorization Request corresponds to the entity that signed the Authorization Request. This is easy in our case because we use the `did:elsi` method.
+                mobile -> mobile: **(11)** Verification of the identity of the VCVerifier
+                # -(11) Verification that the DID in the `client_id` field of the Authorization Request corresponds to the entity that signed the Authorization Request (the VCVerifier in our case). This is easy in our case because we use the `did:elsi` or `did:key` methods.
 
-                mobile -> mobile: **(12)** Verification of the trusted nature of the RP
+                mobile -> mobile: **(12)** Verification of the trusted nature of the VCVerifier).
                 # -(12) Verification that the entity identified in the `client_id` field of the Authorization Request is a trusted entity belonging to the ecosystem, by resolving the DID in the `client_id` field.
 
                     The actual mechanism may vary depending on the DID method used and the ecosystem where the client wants to onboard.
                     
-                    If the Relying Party is a well known entity (like the DOME onboarding service in the case of DOME), it is easy to verify that the DID corresponds to the Relying Party.
+                    If the Relying Party is a well known entity (like the DOME VCVerifier in the case of DOME), it is easy to verify that the DID corresponds to the Relying Party.
 
-                    In most other cases, for example when the Relying Party is a participant in the ecosystem, we assume that the ecosystem provides a Trusted Participants Registry with an API compatible with the EBSI Trusted Issuers Registry, and that the participants registry is managed in a trusted way by the onboarding service (meaning that the Wallet user trusts on the onboarding service, in the same way as all other participants).
+                    In most other cases, for example when the Relying Party is a participant in the ecosystem, we assume that the ecosystem provides a Trusted Participants Registry with a well defined API, compatible with the EBSI Trusted Issuers Registry, and that the participants registry is managed in a trusted way by the onboarding service of the ecosystem (meaning that the Wallet user trusts on the onboarding service, in the same way as all other participants).
                     
-                    In this case, to check if the DID is a participant on the ecosystem, the wallet sends a `GET /api/did/v1/identifiers/{did-to-verify}` request to the endpoint of one of several trusted servers implementing the functionality to query the Trusted Participant Registry, where `{did-to-verify}` is the actual DID the Wallet wants to check (in our example it would be `did:elsi:VATFR-99999999`, corresponding to the RP) . The API returns a JSON document as a DID Document. The DID Document (as per W3C) contains relevant information about the entity owner of the DID. It contains its Public Key, used to verify the digital signature of the entity. It also contains the status of the entity in the ecosystem. It is extensible and can contain any public information which may be relevant for the use case. The API must be operated by a trusted entity for the Wallet user. There may be as many servers implementing the API as needed and operated by different entities. At least one of those trusted entities has to be configured in the Wallet of the user, to facilitate the use of the wallet.
+                    In this case, to check if the DID is a participant on the ecosystem, the wallet sends a `GET /api/did/v1/identifiers/{did-to-verify}` request to the endpoint of one of several trusted servers implementing the functionality to query the Trusted Participant Registry, where `{did-to-verify}` is the actual DID the Wallet wants to check (in our case the `client_id` field of the Authorization Request). The API returns a JSON document as a DID Document. The DID Document (as per W3C) contains relevant information about the entity owner of the DID. It contains its Public Key, used to verify the digital signature of the entity. It also contains the status of the entity in the ecosystem. It is extensible and can contain any public information which may be relevant for the use case. The API must be operated by a trusted entity for the Wallet user. There may be as many servers implementing the API as needed and operated by different entities. At least one of those trusted entities has to be configured in the Wallet of the user, to facilitate the use of the wallet.
 
-        <section>Creating and sending the Authorization Response 
+        <section>Wallets sends the Authorization Response 
 
-            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the RP in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
+            Once the Authorization Request has been validated, the Wallet creates an Authorization Response to be posted in the `response_uri` specified by the VCVerifier in the Authorization Request. For completeness, we describe in the following figure the complete process from reception of Authorization Request until sending the Authorization Response.
 
             <x-diagram .plantuml>Starting the authentication phase
                 box "Company" #WhiteSmoke
@@ -932,21 +931,22 @@ localBiblioFile: "localbiblio.yaml"
                     participant "Wallet" as mobile
                     participant "Laptop" as browser
                 end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Portal" as portal
-                    participant "VC Verifier" as verifier
+                participant "Application" as portal
+                box "VCVerifier" #23ADD0
+                    participant "Auth\nServer" as authserver #C5F3FE
+                    participant "Relying\nParty" as rp #C5F3FE
                 end box
 
-                verifier -> mobile --++: **(9)** Reply with Authorization Request
+                rp -> mobile --++: **(9)** Reply with Authorization Request
 
                 mobile -> mobile: **(10)** Verification of signature of Authorization Request
 
                 mobile -> mobile: **(11)** Verification of the identity of the Relying Party
 
-                mobile -> mobile: **(12)** Verification of the trusted nature of the RP
+                mobile -> mobile: **(12)** Verification of the trusted nature of the VCVerifier
 
                 mobile -> mobile: **(13)** Create Authorization Response
-                # -(13) The wallet creates an Authorization Response to be posted in the `response_uri` specified by GoodAir in the Authorization Request that was sent to the wallet. The contents of the Authorization Response are described below.
+                # -(13) The wallet creates an Authorization Response to be posted in the `response_uri` specified by VCVerifier in the Authorization Request that was sent to the Wallet. The contents of the Authorization Response are described below.
 
                     The response is constructed as defined in section 6.1 of [[OpenID.VP]]. In particular, because the Authorization Request included only `vp_token` as the `response_type`, the VP Token is provided directly in the Authorization Response and a separate `id_token` is not needed.
 
@@ -956,43 +956,48 @@ localBiblioFile: "localbiblio.yaml"
                         presentation_submission=[see definition below]
                         &vp_token=[see definition below]
 
-                    The content of the `presentation_submission` parameter in the above Authorization Response is:
+                    The content of the `presentation_submission` parameter in the above Authorization Response MUST be:
 
                     <x-code .json>
                         {
-                            "definition_id": "OnboardingPresentationDefinition",
-                            "id": "OnboardingPresentationSubmission",
+                            "definition_id": "LEARCredentialPreDef",
+                            "id": "LEARCredential_jwt_vc_submission",
                             "descriptor_map": [
-                            {
-                                "id": "id_credential",
-                                "path": "$",
-                                "format": "ldp_vp",
-                                "path_nested": {
-                                    "format": "ldp_vc",
-                                    "path": "$.verifiableCredential[0]"
+                                {
+                                    "id": "id_credential",
+                                    "path": "$",
+                                    "format": "jwt_vp_json",
+                                    "path_nested": {
+                                        "path": "$.vp.verifiableCredential[0]",
+                                        "format": "jwt_vc_json"
+                                    }
                                 }
-                            }
                             ]
                         }
 
+
                     Which complies with [[DIF.PresentationExchange]] and refers to the Verifiable Presentation in the `vp_token` parameter provided in the same response. In our example, the Verifiable Presentation includes the LEARCredential that was described in the previous sections.
 
-                mobile -> verifier ++: **(14)** POST /api/siop/authorization_response
+                mobile -> rp ++: **(14)** POST /authorization_response
                 # -(14) The wallet sends the Authorization Response to the endpoint received in the `response_uri` parameter of the Authorization Request, sending an HTTP `POST` request using the encoding `application/x-www-form-urlencoded`.
 
                     <x-code .http>
-                        POST /api/siop/authorization_response HTTP/1.1
-                        Host: verifier.dome-onboarding.org
+                        POST /authorization_response HTTP/1.1
+                        Host: verifier.dome-marketplace.org
                         Content-Type: application/x-www-form-urlencoded
 
                         presentation_submission=[see definition below]
                         &vp_token=[see definition below]
 
 
-        <section>Authenticating the user with the LEARCredential
+        <section>VCVerifier answers to Application with the LEARCredential
 
-            We should remember that inside the LEARCredential the `credentialSubject` object has an `id` field with value `did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK` which is the DID of the user. It was generated during the creation of the LEARCredential, and the Relying Party should trust that the credential was generated in the proper way binding cryptographically the DID with the LEARCredential, as described in a previous section. It is the same trust that should be put in the generation of any other signed document, like a contract or invoice.
+            // We should remember that inside the LEARCredential the `credentialSubject` object has an `id` field with value `did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK` which is the DID of the user. It was generated during the creation of the LEARCredential, and the Relying Party should trust that the credential was generated in the proper way binding cryptographically the DID with the LEARCredential, as described in a previous section. It is the same trust that should be put in the generation of any other signed document, like a contract or invoice.
 
+            // TODO: use the 'cnf' parameter for the holder binding of the credential, as described in the specifications
+
+            Once the VCVerifier receives the LEARCredential from the Wallet, it has to perform the verifications according to the defined policy, and send an Authentication Response to the Client that started the authentication process.
+            
             The process of verifying the Authorization Response and authenticating the user with the LEARCredential is the following:
 
             <x-diagram .plantuml>Starting the authentication phase
@@ -1001,14 +1006,15 @@ localBiblioFile: "localbiblio.yaml"
                     participant "Wallet" as mobile
                     participant "Laptop" as browser
                 end box
-                box "Relying Party" #WhiteSmoke
-                    participant "Portal" as portal
-                    participant "VC Verifier" as verifier
+                participant "Application" as portal
+                box "VCVerifier" #23ADD0
+                    participant "Auth\nServer" as authserver #C5F3FE
+                    participant "Relying\nParty" as rp #C5F3FE
                 end box
 
-                mobile -> verifier ++: (14) POST /api/siop/authorization_response
+                mobile -> rp ++: **(14)** POST /authorization_response
 
-                verifier -> verifier: (15 and 16) Verify signature\nand issuer of\nLEARCredential
+                rp -> rp: **(15 and 16)** Verify signature\nand issuer of\nLEARCredential
                 # -(15 and 16) The Verifier receives the Authorization Request and has to perform verifications, the standard ones being defined in [[DIF.PresentationExchange]]. In order to verify that the Verifiable Credential has been issued by a trusted entity, the Relying Party has to verify:
 
                     <ol>
@@ -1019,24 +1025,24 @@ localBiblioFile: "localbiblio.yaml"
 
                     In our case the LEARCredential was issued using the `did:elsi` method, so resolution is very simple and is specified in [[DID-ELSI]].
 
-                verifier -> verifier: (17) Verify sender of the\nAuthorization Response
+                rp -> rp: **(17)** Verify sender of the\nAuthorization Response
                 # -(17) After verifying the credential, the Relying Party can also verify that the Verifiable Presentation including the Verifiable Credential is sent by the user and not by a malicious agent. To do so, it uses the public key associated to the `did:key` identifier `id` field inside the `credentialSubject` structure. That public key is cryptographically bound to the customer DID during the onboarding process that GoodAir performed with its employee.
 
-                verifier -> verifier: (18) Generate Access Token
-                # -(18) The Verifier creates an Access Token for the user so it can be used later for access services provided by the Relying Party (in the case of onboarding, those services would be the ones related to the onboarding process implemented by the Onboarding portal). The Access Token is generated in JWT format and signed by the VC Verifier. The access token is intended for use as bearer token over HTTP [[RFC2616]] using Transport Layer Security (TLS) [[RFC5246]] to access protected resources, and it should use the JWT Profile profile described in [[RFC9068]].
+                rp -> rp: **(18)** Generate Access Token
+                # -(18) The Verifier creates an Access Token for the user so it can be used later to access a Resource Server which trusts on the VCVerifier. The Access Token is generated in JWT format and signed by the VC Verifier. The access token is intended for use as bearer token over HTTP [[RFC2616]] using Transport Layer Security (TLS) [[RFC5246]] to access protected resources, and it should use the JWT Profile described in [[RFC9068]].
 
-                    For our use case, the payload of the JWT access token looks like:
+                    For our use case, the payload of the JWT access token looks like this:
 
                     <x-code .json>
                         {
                             "iss": "did:elsi:VATFR-99999999",
                             "sub": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-                            "aud":   "https://dome-marketplace.eu/onboarding",
+                            "aud":   "https://dome-marketplace.eu/",
                             "exp": 1639528912,
                             "iat": 1618354090,
                             "jti" : "dbe39bf3a3ba4238a513f51d6e1691c4",
                             "client_id": "did:elsi:VATFR-99999999",
-                            "scope": "vp_token",
+                            "scope": "openid learcred",
                             "verifiableCredential": ["the VC that was received inside the Verifiable Presentation"]
                         }
 
@@ -1047,39 +1053,40 @@ localBiblioFile: "localbiblio.yaml"
 
                         - `sub` identifies the user (employee of GoodAir acting as LEAR of the company) using the DID inside the Verifiable Credential received
 
-                        - `aud` identifies the RS (Resource Server) component in Packet Delivery. In this case we assume that it is internal and does not have a DID assigned, so we use the URI of the component.
+                        - `aud` identifies the Client that requested authentication with the Verifiable Credential in step (3) of <x-ref start_authentication>.
 
-                        - `kid` in the header identifies the key that is used to sign the JWT and which must be configured up-front and known by the RS (Resource Server.
+                        - `kid` in the header identifies the key that is used to sign the JWT and which must be configured up-front and published in the metadata of the Authorization Server (the VCVerifier acting as OpenID Provider).
 
                         - `scope` has the same value as the equivalent `scope` parameter in the initial Authorization Request.
 
-                        - `verifiableCredential` contains the Verifiable Credential that was received, specifically the value of the first element of the field `verifiableCredential` of the Verifiable Presentation.
+                        - `verifiableCredential` contains the Verifiable Credential that was received, specifically the value of the first element of the field `verifiableCredential` of the Verifiable Presentation. The credential here is in JSON format, not as a JWT.
 
-                verifier -> mobile: (19) HTTP 200 with <access token>
-                # -(19) The Verifier sends a successful response to the POST request from the wallet. The wallet receives the response to the POST indicating the success or failure of the process. The Verifier continues processing because the web portal of Packet Delivery has to be refreshed with the services that this specific user can access, based on the information received in the Verifiable Credential and the access control policies implemented by the DOME portal.
+                rp -> mobile: **(19)** HTTP 200
+                rp -> authserver --++:
+                # -(19) The Verifier sends a successful response to the POST request from the wallet. The wallet receives the response to the POST indicating the success or failure of the process. The Verifier continues processing because it has to answer to the Client (the Marketplace in our case) with the OIDC Authentication Response.
 
-                verifier -> portal --++: (20) Notify with\n<access token> and <state>
-                # -(20) The Verifier notifies the DOME portal to refresh the login page so it can present the services to the user. The notification includes the following:
-
-                    <ul>
-                        - The `state` nonce that was generated by the portal when it generated the QR code. The portal uses the `state` nonce to know what login session is being notified.
-
-                        - The access token generated before.
-
-                    The notification is a simple POST request with both parameters in the body:
-
+                authserver -> browser --++: **(20)** HTTP 302 (redirect)
+                browser -> portal --++: **(20 cont)** Authentication Response (with <code>)
+                # -(20) The Verifier sends the AUtnetication Response to the Client redirecting the User to the `redirect_uri` that was specified. The Client receives the `code` parameter because it used the authorization code flow.  notifies the DOME portal to refresh the login page so it can present the services to the user.
+                
+                    The following is an example of successful response (with line wraps within values for display purposes only)
+                    
                     <x-code .http>
-                        POST /api/notify HTTP/1.1
-                        Host: dome-marketplace.eu
-                        Content-Type: application/x-www-form-urlencoded
+                        HTTP/1.1 302 Found
+                        Location: https://dome-marketplace.org/cb?
+                            code=SplxlOBeZQQYbYS6WxSbIA
+                            &state=af0ifjsldkj                
+                
+                    Where
+                        - The value of `state` is the value sent by the Client. The Client uses the `state` nonce to know what login session is being notified
+                        - The `code` is generated by the VCVerifier so the Client will use it when accessing the **token** endpoint of VCVerifier in order to retrieve the Access Token.
+                
+                portal -> authserver --++: **(21)** Retrieve Access Token
+                authserver -> portal --++: **(22)** <access token>
+                
 
-                        access_token=[the access token]
-                        &state=af0ifjsldkj
-
-                    The portal component replies immediately and continues processing.
-
-                portal -> browser --: (21) Refresh screen\nwith services and include\n<access token>
-                # -(21) The portal of the Relying Party refreshes the screen and displays the services available to users, sending the Access Token to the browser of the user. The Access Token will be sent back by the browser to the portal whenever the user tries to access a protected resource of the portal, and so access control can be performed using the data inside the token, in the same way as with any other access token in other authentication mechanisms.
+                portal -> browser --: **(23)** Refresh screen with logged in user
+                # -(23) The Client (the Marketplace in our case) refreshes the screen and displays the services available to users, using the Access Token to maintain the session with the user (e.g., with a secure cookie).
                 
 
     <section>Authenticating with Verifiable Credentials, Machine-To-Machine (M2M)
@@ -2950,202 +2957,113 @@ localBiblioFile: "localbiblio.yaml"
                 - The classes like ubl:Contact, ubl:PostalAddress, org:Site, etc., can be used when there is the need of getting in touch with any of the agents, e.g. in the case notifications from the Service Provider to the `Mandator` and Mandatee could be relevant.
 
 
-<section .appendix #participants>Example scenario: Participants in the ecosystem
+<section .appendix #participants>Example scenario: DOME Marketplace
 
-    Here we introduce the actors of the reference use case we are going to use. The main actors are marked in yellow in the following diagram.
-    
-    RealTruth is a Trust Service Provider operating under the eIDAS Trust Framework, which issues a certificate for seals to the company GoodAir. GoodAir is a business that provides some services using an Air Quality application operated by GoodAir.
+    Here we introduce a real-world scenario which we will use as an example to make descriptions clearer in this document.
 
-    RealTruth also provides a certificate for signatures to the COO of the GoodAir company, so the COO can use the certificate to sign documents on behalf of GoodAir (like contracts, invoices, financial reports, ...) in a way that is compliant with eIDAS.
+    The <a href="https://dome-marketplace.eu/">DOME Marketplace</a> is a decentralised federation of marketplace instances where customers can procure certified cloud, edge and AI services from other entities that act as service providers.
 
-    The COO of GoodAir will issue a verifiable credential of type LEARCredential to an employee of GoodAir, signing the credential with his certificate for signatures.
+    Each marketplace instance in the DOME ecosystem is operated by a different legal entity, and replicating the catalogue data among them in a trusted and secure way. One of the federated marketplace instances is operated by the DOME Operator, which has a special role only in the governance of the ecosystem. At the technical level, all instances are equal and behave as peers, without requiring a central entity. The figure below represents the concept.
 
-    <x-diagram .d2>
-        classes: {
-            participant: {
-                style: {
-                    fill: "aqua"
-                }
-            }
-            multiple: {
-                style: {
-                    multiple: true
-                }
-            }
-        }
+    <x-img #fig-dome-ecosystem src="images/dome/dome_ecosystem_overview.png">DOME components overview
 
-        eIDAS: eIDAS Trust Framework {
-            icon: /images/eu_trust_mark.jpg
-        }
-        eIDAS.style.fill: transparent
+    A decentralised ecosystem like DOME requires a common Decentralised Identity and Access Control system. DOME is aligned with the new <a href="https://digital-strategy.ec.europa.eu/en/policies/eudi-regulation">European Digital Identity Framework (EUDI)</a>, and DOME uses Verifiable Credentials to represent the digital identities of companies, identities of employees acting on behalf of those companies, and identities of the machines or services ope rated by each company. Any EUDI-compatible Wallet can be used to manage and use the credentials in the DOME ecosystem. The Decentralised Identity framework includes a Trust Framework which participants use to verify the identities of all other entities.
 
-        DE_TL: Germany Trusted List
+    The DOME marketplace instance has a web portal that allows external entities to perform some processes in an automated fashion by using Verifiable Credentials that have been issued by trusted entities. The complete Trust Framework used by DOME is composed from a series of Trust Frameworks, some managed internally using a governance model of DOME and some others managed externally by trusted entities. At the root of the Trust Framework of DOME is the eIDAS Trust Framework and the pan-european recognized list of Trust Service Providers issuing the eIDAS compliant digital identities, in the form of certificates for signatures/seals.
 
-        RealTruth: RealTruth TSP {
+    The figure below zooms in the DOME Marketplace instance operated by the DOME Operator.
 
-            Seal: Certificate\nfor seal
-            Seal.shape: oval
+    <x-img #fig-dome-architecture-overview src="images/dome/dome_architecture_overview.png">DOME components overview
 
-            Sign: Certificate\nfor signature
-            Sign.shape: oval
+    In the context of authentication and access control for the Human-to-Machine flows, we will use the following actors:
 
-        }
-        RealTruth.class: participant
+        - The **Marketplace** application, which requires employees of the Cloud Service Providers (CSP) to logon with a Verifiable Credential (the LEARCredential), before the employee can create or update a Product Offering from the CSP.
 
-        OtherG: Other TSPs {
-            S3.shape: circle
-            S3: Cert\nfor Sign
-            S4.shape: circle
-            S4: Cert\nfor Seal
-        }
-        OtherG.class: multiple
+        - **GoodAir** is a Cloud Services Provider company, providing an Air Quality Monitoring application as a service. The company operates the application, which receives data from a set of sensors that may or may not be the property of GoodAir. The sensors must have received a certification to be able to operate and send data to the GoodAir application.
 
-        DE_TL -> RealTruth
-        DE_TL -> OtherG
+            The company is registered in the tax agency and business registry of Spain with VAT number `VATES-12345678`.
 
-        Other_Countries: Other Trusted Lists
-        Other_Countries.style.fill: transparent
-        Other_Countries.class: multiple
+        - **John Doe**: an administrative employee of GoodAir.
 
-        TSP1 {
-            S1.shape: circle
-            S1: Cert\nfor Sign
-            S2.shape: circle
-            S2: Cert\nfor Seal
-        }
+            This is an employee of the central administration department of GoodAir, who is going to be formally nominated to manage a specific set of processes on behalf of GoodAir in DOME. In particular, this employee is going to be nominated as a LEAR (Legal Entity Authorised Representative).
 
-        TSPn {
-            S3.shape: circle
-            S3: Cert\nfor Sign
-            S4.shape: circle
-            S4: Cert\nfor Seal
-        }
+            As its name implies, the LEAR has to be nominated by a <b>legal representative</b> of the GoodAir organisation with the necessary legal authority to commit the organisation for this type of decision. In our case, the COO of GoodAir will nominate John Doe as the LEAR of GoodAir, delegating to him the capabilities to perform some processes in the DOME Marketplace application. That means that John Doe will not be empowered to perform actions not explicitly specified in the credential.
 
-        GoodAir {
-            COO
-            Employee
-        }
-        GoodAir.class: participant
+            To perform the nomination, the COO of GoodAir will issue a special credential to John Doe and will sign the credential with his certificate for signatures as legal representative of GoodAir. The details are described in <x-ref "issuing-lear-credential-signature">.
 
-        eIDAS -> DE_TL
-        eIDAS -> Other_Countries
+        - **COO (Chief Operating Officer)** of GoodAir
 
+            The GoodAir company is small and one of the legal representatives is the COO (Chief Operating Officer). The COO is registered as a legal representative in the business registry of Spain.
 
-        RealTruth.Seal -> GoodAir: Issue Cert for Seals {
-            style: {
-                font-size: 30
-            }
-        }
-        RealTruth.Sign -> GoodAir.COO: Issue Cert for Signatures {
-            style: {
-                font-size: 30
-            }
-        }
+            The COO has a certificate for electronic signatures issued by one of the Qualified Trust Service Provider in Spain enabling the COO to perform electronic qualified signatures as legal representative of GoodAir. The COO is used to sign contracts and other legally binding documents in the form of PDFs.
 
-        Other_Countries -> TSP1
-        Other_Countries -> TSPn
+            The X.509 certificate of the COO has the following contents in the `Subject` field (the example below is derived from a real certificate but with the identifiers modified to be an example):
 
-        GoodAir.COO -> GoodAir.Employee: LEARCredential {
-            style: {
-                font-size: 30
-            }
-        }
+            <x-code .ini>
+                cn = 56565656V Jesus Ruiz
+                serialNumber = 56565656V
+                givenName = Jesus
+                sn = Ruiz
+                2.5.4.97 = VATES-12345678
+                o = GoodAir
+                c = ES
 
-    <section>GoodAir is a service provider
-
-        The new participant is a business providing an Air Quality Monitoring application as a service. The business is called GoodAir and it operates the application, which receives data from a set of sensors that may or may not be the property of GoodAir. The sensors must have received a certification to be able to operate and send data to the GoodAir application.
-
-        The company is registered in the tax agency and business registry of Spain with VAT number <b>VATES-12345678</b>.
-
-    <section>COO (Chief Operating Officer) of GoodAir
-
-        The GoodAir company is small and one of the legal representatives is the COO (Chief Operating Officer). The COO is registered as a legal representative in the business registry of Spain.
-
-        The COO has a certificate for electronic signatures issued by one of the Qualified Trust Service Provider in Spain enabling the COO to perform electronic qualified signatures as legal representative of GoodAir. The COO is used to sign contracts and other legally binding documents in the form of PDFs.
-
-        The X.509 certificate of the COO has the following contents in the `Subject` field (the example below is derived from a real certificate but with the identifiers modified to be an example):
-
-        <x-code .ini>
-            cn = 56565656V Jesus Ruiz
-            serialNumber = 56565656V
-            givenName = Jesus
-            sn = Ruiz
-            2.5.4.97 = VATES-12345678
-            o = GoodAir
-            c = ES
-
-        The above set of fields bind the legal identity of the COO with the identity of the business, as attested by the QTSP after checking in the business registry of Spain.
-
-        <ul>
-            - `serialNumber` is the unique number recognized by the Spanish Government for spanish citizens (called NIF).
-            - `2.5.4.97` is the <a href="https://oidref.com/2.5.4.97">official OID for `organizationIdentifier`</a>. The contents of this field in the example certificate is the unique identifier for the legal person GoodAir.
-
-        Before issuing a certificate like the above, the TSP has to perform some validations to ensure that in the official source of truth (the business registry of Spain in this case) there is already registered information that states that the COO has indeed powers to act on behalf of GoodAir as a legal representative.
-
-    <section>RealTruth: a Trust Service Provider
-
-        RealTruth is an EU TSP, which appears in the TL (Trusted List) maintained by the <a href="https://tl.bundesnetzagentur.de/TL-DE.XML">German Government</a>.
-        
-        RealTruth is a TSP based in Germany but operates in most of the countries of the EU and so being able to provide Trust Services across many countries, including Spain.
-
-        As all TSPs in the TLs of the Member States, its entry in the TL includes one or more "Services" entries which describe the Trust Services provided by the TSP.
-
-        A TSP can have one Service issuing certificates for signatures, another service issuing certificates for seals, another service for timestamping, etc.
-
-        The regulator approves or suspends each service from a TSP individually, and the services are the root anchor for a given trust environment.
-
-        In our case, the entry for RealTruth in the TL includes a `\<TSPService\>` entry, and inside it the `\<ServiceDigitalIdentity\>` entry includes a DER-encoded certificate specifying the digital identity of the root anchor for that trust domain. The certificate for the Service has in the Subject field:
-
-        <x-code .INI>
-            2.5.4.97 = VATDE-170173453
-            CN = DRV QC 11 MA CA 2017ca
-            OU = QC 11 Mitarbeiter CA
-            O = Deutsche Rentenversicherung Westfalen
-            C = DE
-
-        Which in the `organizationIdentifier` field (OID 2.5.4.97) specifies the unique organisation identifier assigned by the German regulatory authority to the TSP: VATDE-170173453.
-
-        RealTruth provides `Legal Person Representative Certificates` which are qualified in accordance with Regulation (EU) No. 910/2014 of the European Parliament and of the Council of 23 July 2014 on electronic identification and trust services for electronic transactions in the internal market.
-
-        The certification policies of RealTruth include the following sentences:
-
-        <blockquote>
-            The Registration Authority must verify the following information in order to authenticate the identity of the organisation:
+            The above set of fields bind the legal identity of the COO with the identity of the business, as attested by the QTSP after checking in the business registry of Spain.
 
             <ul>
-                - The data concerning the business name or corporate name of the organisation.
-                - The data relating to the constitution and legal status of the subscriber.
-                - <b>The data concerning the extent and validity of the powers of representation of the applicant.</b>
-                - The data concerning the tax identification code of the organisation or equivalent code used in the country to whose legislation the subscriber is subject.
+                - `serialNumber` is the unique number recognized by the Spanish Government for spanish citizens (called NIF).
+                - `2.5.4.97` is the <a href="https://oidref.com/2.5.4.97">official OID for `organizationIdentifier`</a>. The contents of this field in the example certificate is the unique identifier for the legal person GoodAir.
 
-        The TSP (RealTruth in this case) performs the verifications against `Authentic Sources`.
+            Before issuing a certificate like the above, the TSP has to perform some validations to ensure that in the official source of truth (the business registry of Spain in this case) there is already registered information that states that the COO has indeed powers to act on behalf of GoodAir as a legal representative.
 
-        <blockquote>
-            Authentic Sources are the public or private repositories or systems recognised or required by law containing attributes about a natural or legal persons.
+        - **RealTruth**: a Trust Service Provider
+
+            RealTruth is an EU TSP, which appears in the TL (Trusted List) maintained by the <a href="https://tl.bundesnetzagentur.de/TL-DE.XML">German Government</a>.
             
-            The Authentic Sources in scope of Annex VI of the [eIDAS2] legislative proposal are sources for attributes on address, age, gender, civil status, family composition, nationality, education and training qualifications titles and licences, professional qualifications titles and licences, public permits and licences, financial and company data.
-            
-            Authentic Sources in scope of Annex VI are required to provide interfaces to Qualified Electronic Attestation of Attributes  (QEAA) Providers to verify the authenticity of the above attributes, either directly or via designated intermediaries recognised at national level.
-            
-            Authentic Sources may also issue (Q)EAA-s themselves if they meet the requirements of the eIDAS Regulation. It is up to the Member States to define terms and conditions for the provisioning of these services, but according to the minimum technical specifications, standards, and procedures applicable to the verification procedures for qualified electronic attestations of attributes.
+            RealTruth is a TSP based in Germany but operates in most of the countries of the EU and so being able to provide Trust Services across many countries, including Spain.
 
-        In accordance to the policies, RealTruth made those validations when issuing the certificate to the COO, in such a way that the Relying Parties verifying the certificate can have a high level of trust in the assertion that the natural person identified in the certificate (with Spanish ID of 56565656V) is a legal representative of he GoodAir company (organizationIdentifier VATES-12345678).
+            As all TSPs in the TLs of the Member States, its entry in the TL includes one or more "Services" entries which describe the Trust Services provided by the TSP.
 
-    <section>John Doe: an administrative employee of GoodAir
+            A TSP can have one Service issuing certificates for signatures, another service issuing certificates for seals, another service for timestamping, etc.
 
-        This is an employee of the central administration department of GoodAir, who is going to be formally nominated to manage a specific set of processes on behalf of GoodAir in DOME. In particular, this employee is going to be nominated as a LEAR (Legal Entity Authorised Representative).
+            The regulator approves or suspends each service from a TSP individually, and the services are the root anchor for a given trust environment.
 
-        As its name implies, the LEAR has to be nominated by a <b>legal representative</b> of the GoodAir organisation with the necessary legal authority to commit the organisation for this type of decision. In our case, the COO of GoodAir will nominate John Doe as the LEAR of GoodAir, delegating to him the capabilities to perform some processes in the DOME portal and some other tasks in other organisations. That means that John Doe will not be empowered to perform actions not explicitly specified in the credential.
+            In our case, the entry for RealTruth in the TL includes a `\<TSPService\>` entry, and inside it the `\<ServiceDigitalIdentity\>` entry includes a DER-encoded certificate specifying the digital identity of the root anchor for that trust domain. The certificate for the Service has in the Subject field:
 
-        To perform the nomination, the COO of GoodAir will issue a special credential to John Doe and will sign the credential with his certificate for signatures as legal representative of GoodAir. The details are described in <x-ref "issuing-lear-credential-signature">.
+            <x-code .INI>
+                2.5.4.97 = VATDE-170173453
+                CN = DRV QC 11 MA CA 2017ca
+                OU = QC 11 Mitarbeiter CA
+                O = Deutsche Rentenversicherung Westfalen
+                C = DE
 
-    <section>DOME Marketplace: a decentralised marketplace for cloud & edge services
+            Which in the `organizationIdentifier` field (OID 2.5.4.97) specifies the unique organisation identifier assigned by the German regulatory authority to the TSP: VATDE-170173453.
 
-        <a href="https://dome-marketplace.eu/">DOME Marketplace</a> is a decentralised federation of marketplace instances where customers can procure certified cloud and edge services from other entities that act as service providers.
+            RealTruth provides `Legal Person Representative Certificates` which are qualified in accordance with Regulation (EU) No. 910/2014 of the European Parliament and of the Council of 23 July 2014 on electronic identification and trust services for electronic transactions in the internal market.
 
-        One of the instances of the federated marketplaces is operated by the DOME Operator, an entity implementing the governance model of the ecosystem. This marketplace instance has a web portal that allows external entities to perform some processes in an automated fashion by using Verifiable Credentials that have been issued by trusted entities. The complete Trust Framework used by DOME is composed from a series of Trust Frameworks, some managed internally using a governance model of DOME and some others managed externally by trusted entities. At the root of the Trust Framework of DOME is the eIDAS Trust Framework and the pan-european recognized list of Trust Service Providers issuing the eIDAS compliant digital identities, in the form of certificates for signatures/seals.
+            The certification policies of RealTruth include the following sentences:
 
-        In order to participate in DOME, every legal person requires a certificate for seals, or a certificate for signatures issued to a legal representative (or both). The DOME entity is registered in France with VAT number <b>VATFR-99999999</b>.
+            <blockquote>
+                The Registration Authority must verify the following information in order to authenticate the identity of the organisation:
+
+                <ul>
+                    - The data concerning the business name or corporate name of the organisation.
+                    - The data relating to the constitution and legal status of the subscriber.
+                    - <b>The data concerning the extent and validity of the powers of representation of the applicant.</b>
+                    - The data concerning the tax identification code of the organisation or equivalent code used in the country to whose legislation the subscriber is subject.
+
+            The TSP (RealTruth in this case) performs the verifications against `Authentic Sources`.
+
+            <blockquote>
+                Authentic Sources are the public or private repositories or systems recognised or required by law containing attributes about a natural or legal persons.
+                
+                The Authentic Sources in scope of Annex VI of the [eIDAS2] legislative proposal are sources for attributes on address, age, gender, civil status, family composition, nationality, education and training qualifications titles and licences, professional qualifications titles and licences, public permits and licences, financial and company data.
+                
+                Authentic Sources in scope of Annex VI are required to provide interfaces to Qualified Electronic Attestation of Attributes  (QEAA) Providers to verify the authenticity of the above attributes, either directly or via designated intermediaries recognised at national level.
+                
+                Authentic Sources may also issue (Q)EAA-s themselves if they meet the requirements of the eIDAS Regulation. It is up to the Member States to define terms and conditions for the provisioning of these services, but according to the minimum technical specifications, standards, and procedures applicable to the verification procedures for qualified electronic attestations of attributes.
+
+            In accordance to the policies, RealTruth made those validations when issuing the certificate to the COO, in such a way that the Relying Parties verifying the certificate can have a high level of trust in the assertion that the natural person identified in the certificate (with Spanish ID of 56565656V) is a legal representative of he GoodAir company (organizationIdentifier VATES-12345678).
 
 
 
